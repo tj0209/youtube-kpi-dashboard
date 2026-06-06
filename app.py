@@ -549,6 +549,70 @@ ul.clean-list li {
     font-size: 12px;
     font-weight: 900;
 }
+
+/* V9: grouped checkbox headings and selected summaries */
+.group-heading {
+    margin: 18px 0 8px;
+    padding: 12px 14px;
+    border-radius: 8px 8px 0 0;
+    background:
+        linear-gradient(135deg, rgba(56,189,248,0.16), rgba(255,0,51,0.07)),
+        rgba(15,23,42,0.74);
+    border: 1px solid rgba(148,163,184,0.18);
+    border-bottom: 0;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+}
+.group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #FFFFFF !important;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+}
+.group-desc {
+    color: #CBD5E1 !important;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 4px;
+    line-height: 1.6;
+}
+.selected-group {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.selected-group-title {
+    color: #FFFFFF !important;
+    font-size: 13px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+.selected-group ul {
+    margin: 0 !important;
+    padding-left: 0 !important;
+    list-style: none !important;
+}
+.selected-group li {
+    position: relative;
+    padding: 7px 8px 7px 26px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    background: rgba(15,23,42,0.48);
+    line-height: 1.65;
+}
+.selected-group li::before {
+    content: "✓";
+    position: absolute;
+    left: 8px;
+    top: 7px;
+    color: var(--green);
+    font-weight: 900;
+}
+
 .small-note {
     color: var(--muted) !important;
     font-size: 13px;
@@ -849,6 +913,65 @@ def checkbox_group(label, options, default_selected=None, key_prefix="check", co
     return selected
 
 
+def checkbox_grouped(label, groups, default_selected=None, key_prefix="group_check"):
+    """カテゴリごとにチェックボックスを分けて表示する。返り値は選択項目のフラットなリスト。"""
+    default_selected = default_selected or []
+    st.markdown(f"**{label}**")
+    selected = []
+
+    for group_index, group in enumerate(groups):
+        group_title = html.escape(str(group.get("title", "グループ")), quote=True)
+        group_desc = html.escape(str(group.get("desc", "")), quote=True)
+        group_html = (
+            '<div class="group-heading">'
+            f'<div class="group-title">{group_title}</div>'
+            f'<div class="group-desc">{group_desc}</div>'
+            '</div>'
+        )
+        st.markdown(group_html, unsafe_allow_html=True)
+        for item_index, option in enumerate(group.get("items", [])):
+            key = f"{key_prefix}_{group_index}_{item_index}"
+            if st.checkbox(option, value=option in default_selected, key=key):
+                selected.append(option)
+    return selected
+
+
+def render_selected_grouped_list(title, groups, selected_items):
+    safe_title = html.escape(str(title), quote=True)
+    selected_set = set(selected_items or [])
+
+    if not selected_set:
+        no_items_html = (
+            '<div class="action-list-box">'
+            f'<div class="action-list-title">✅ {safe_title}</div>'
+            '<p class="small-note">まだ選択されていません。</p>'
+            '</div>'
+        )
+        st.markdown(no_items_html, unsafe_allow_html=True)
+        return
+
+    parts = [
+        '<div class="action-list-box">',
+        f'<div class="action-list-title">✅ {safe_title}</div>',
+    ]
+
+    for group in groups:
+        group_items = [item for item in group.get("items", []) if item in selected_set]
+        if not group_items:
+            continue
+        group_title = html.escape(str(group.get("title", "グループ")), quote=True)
+        item_html = "".join([f"<li>{html.escape(str(item), quote=True)}</li>" for item in group_items])
+        parts.extend([
+            '<div class="selected-group">',
+            f'<div class="selected-group-title">{group_title}</div>',
+            f'<ul>{item_html}</ul>',
+            '</div>',
+        ])
+
+    parts.append('</div>')
+    st.markdown("\n".join(parts), unsafe_allow_html=True)
+
+
 def make_report(student_name, video_title, hypothesis, target_audience, planned_actions, target_views, target_ctr,
                 act_views, act_imp, act_ctr, retention, likes, comments, subs, short_views,
                 external_views, external_ratio, main_problem, next_actions, next_kpi, next_goal, reflection, next_hypothesis):
@@ -918,31 +1041,54 @@ with tab1:
 
     with st.container(border=True):
         st.markdown("### 🚀 実施予定の施策")
-        plan_options = [
-            "サムネイルをスマホサイズで確認する",
-            "タイトルに検索キーワードを入れる",
-            "概要欄にフル歌詞を書く",
-            "概要欄に制作クレジットを書く",
-            "半角#のハッシュタグを3〜5個入れる",
-            "本編MVからショート動画を切り出して投稿する",
-            "Xに動画付き告知を投稿する",
-            "Instagramストーリーズで告知する",
-            "TikTokにもショートを流用する",
-            "終了画面・カード・再生リストを設定する",
-            "チーム内で相互視聴・コメントを行う",
+        plan_groups = [
+            {
+                "title": "📊 CTR改善：クリックされる入口づくり",
+                "desc": "表示されたときに『押したい』と思わせる、サムネイル・タイトル系の施策です。",
+                "items": [
+                    "サムネイルをスマホサイズで確認する",
+                    "タイトルに検索キーワードを入れる",
+                ],
+            },
+            {
+                "title": "🔎 露出・SEO改善：YouTubeに見つけてもらう",
+                "desc": "YouTube AIに動画内容を伝え、検索・関連表示・おすすめの入口を増やす施策です。",
+                "items": [
+                    "概要欄にフル歌詞を書く",
+                    "概要欄に制作クレジットを書く",
+                    "半角#のハッシュタグを3〜5個入れる",
+                ],
+            },
+            {
+                "title": "📱 ショート・外部流入改善：外から連れてくる",
+                "desc": "本編MVを知らない人へ届けるための、ショート・SNS告知系の施策です。",
+                "items": [
+                    "本編MVからショート動画を切り出して投稿する",
+                    "Xに動画付き告知を投稿する",
+                    "Instagramストーリーズで告知する",
+                    "TikTokにもショートを流用する",
+                ],
+            },
+            {
+                "title": "🔁 回遊・初動改善：チャンネル内に残す",
+                "desc": "見に来てくれた人を他動画・コメント・登録へつなげ、初動の熱量を作る施策です。",
+                "items": [
+                    "終了画面・カード・再生リストを設定する",
+                    "チーム内で相互視聴・コメントを行う",
+                ],
+            },
         ]
-        planned_actions = checkbox_group(
-            "投稿前に仕込む施策を選んでください（全文表示されるチェックボックス形式）",
-            plan_options,
+        planned_actions = checkbox_grouped(
+            "投稿前に仕込む施策を選んでください（カテゴリ別）",
+            plan_groups,
             default_selected=[
                 "サムネイルをスマホサイズで確認する",
                 "概要欄にフル歌詞を書く",
                 "本編MVからショート動画を切り出して投稿する",
             ],
             key_prefix="plan_action",
-            columns=1,
         )
-        render_selected_list("選択中の施策", planned_actions)
+        render_selected_grouped_list("選択中の施策", plan_groups, planned_actions)
 
     ctr_label, ctr_level = ctr_rank(target_ctr)
     if target_views >= 1000:
@@ -1138,24 +1284,47 @@ with tab3:
     st.markdown('<div class="section-heading">📝 改善アクションとPDCAレポート</div>', unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown("### 🔧 次に実行する改善アクション")
-        action_options = [
-            "サムネイルを変更する",
-            "タイトルを変更する",
-            "概要欄・タグ・歌詞を修正する",
-            "既存MVからショート動画を切り出して新しく投稿する",
-            "X / Instagram / TikTokで告知する",
-            "終了画面・カード・再生リストを設定する",
-            "コメント返信・固定コメントでファン化する",
-            "チーム内で相互視聴・コメント・引用リポストを行う",
+        action_groups = [
+            {
+                "title": "📊 CTR改善：押される見た目にする",
+                "desc": "インプレッションはあるのにクリックされない場合の、サムネイル・タイトル改善です。",
+                "items": [
+                    "サムネイルを変更する",
+                    "タイトルを変更する",
+                ],
+            },
+            {
+                "title": "🔎 露出・SEO改善：表示される機会を増やす",
+                "desc": "検索・関連表示・おすすめに乗るために、YouTubeへ動画内容を正しく伝えます。",
+                "items": [
+                    "概要欄・タグ・歌詞を修正する",
+                ],
+            },
+            {
+                "title": "📱 ショート・外部流入改善：入口を増やす",
+                "desc": "MVを再制作せず、既存MVの魅力を切り出して外部から視聴者を呼び込みます。",
+                "items": [
+                    "既存MVからショート動画を切り出して新しく投稿する",
+                    "X / Instagram / TikTokで告知する",
+                ],
+            },
+            {
+                "title": "🔁 回遊・ファン化改善：次の行動につなげる",
+                "desc": "見に来た人をコメント・他動画・登録につなげ、チャンネル全体の評価を上げます。",
+                "items": [
+                    "終了画面・カード・再生リストを設定する",
+                    "コメント返信・固定コメントでファン化する",
+                    "チーム内で相互視聴・コメント・引用リポストを行う",
+                ],
+            },
         ]
-        next_actions = checkbox_group(
-            "次に実行する改善アクションを複数選んでください（複数選択対応）",
-            action_options,
+        next_actions = checkbox_grouped(
+            "次に実行する改善アクションを複数選んでください（カテゴリ別）",
+            action_groups,
             default_selected=["概要欄・タグ・歌詞を修正する", "既存MVからショート動画を切り出して新しく投稿する"],
             key_prefix="next_action",
-            columns=1,
         )
-        render_selected_list("選択中の改善アクション", next_actions)
+        render_selected_grouped_list("選択中の改善アクション", action_groups, next_actions)
 
         st.markdown("### 📌 次回検証するKPI")
         next_kpi = st.radio(
