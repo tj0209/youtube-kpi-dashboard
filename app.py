@@ -2187,6 +2187,110 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+
+# =========================
+# V60: 総合ステータスの絵文字アイコンを、ミニKPIマーカーに変更
+# =========================
+st.markdown("""
+<style>
+/* 絵文字アイコンを使わず、左上の小さなKPIタグで上品に見せる */
+.status-advice-card.compact-status-card .status-item {
+    display: block !important;
+    padding: 44px 16px 16px 16px !important;
+    min-height: 104px !important;
+}
+.status-advice-card.compact-status-card .status-icon {
+    display: none !important;
+}
+.status-advice-card.compact-status-card .status-metric-mark {
+    position: absolute !important;
+    top: 12px !important;
+    left: 14px !important;
+    z-index: 6 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 22px !important;
+    min-width: 38px !important;
+    padding: 0 8px !important;
+    border-radius: 4px !important;
+    background: rgba(255,255,255,0.075) !important;
+    border: 1px solid rgba(255,255,255,0.13) !important;
+    color: #D4D4D4 !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.09em !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+}
+.status-advice-card.compact-status-card .status-content {
+    padding-left: 0 !important;
+}
+.status-advice-card.compact-status-card .status-label {
+    padding-right: 0 !important;
+    margin-bottom: 8px !important;
+    color: #A3A3A3 !important;
+    letter-spacing: 0.02em !important;
+}
+.status-advice-card.compact-status-card .status-value {
+    color: #F5F5F5 !important;
+    line-height: 1.62 !important;
+}
+.status-advice-card.compact-status-card .status-views .status-metric-mark {
+    color: #DCFCE7 !important;
+    background: rgba(34,197,94,0.14) !important;
+    border-color: rgba(34,197,94,0.26) !important;
+}
+.status-advice-card.compact-status-card .status-youtube .status-metric-mark {
+    color: #FEE2E2 !important;
+    background: rgba(255,0,0,0.13) !important;
+    border-color: rgba(255,0,0,0.28) !important;
+}
+.status-advice-card.compact-status-card .status-external .status-metric-mark {
+    color: #E0F2FE !important;
+    background: rgba(14,165,233,0.13) !important;
+    border-color: rgba(14,165,233,0.27) !important;
+}
+.status-advice-card.compact-status-card .status-ctr .status-metric-mark {
+    color: #FCE7F3 !important;
+    background: rgba(244,114,182,0.13) !important;
+    border-color: rgba(244,114,182,0.28) !important;
+}
+.status-advice-card.compact-status-card .status-retention .status-metric-mark {
+    color: #F3E8FF !important;
+    background: rgba(168,85,247,0.13) !important;
+    border-color: rgba(168,85,247,0.27) !important;
+}
+.status-advice-card.compact-status-card .status-shorts .status-metric-mark {
+    color: #FFEDD5 !important;
+    background: rgba(249,115,22,0.13) !important;
+    border-color: rgba(249,115,22,0.27) !important;
+}
+.status-advice-card.compact-status-card .status-item-problem .status-metric-mark,
+.status-advice-card.compact-status-card .status-warning .status-metric-mark {
+    color: #FEF3C7 !important;
+    background: rgba(245,158,11,0.13) !important;
+    border-color: rgba(245,158,11,0.28) !important;
+}
+/* 右上バッジとのバランス調整 */
+.status-advice-card.compact-status-card .status-state-pill {
+    top: 12px !important;
+    right: 14px !important;
+}
+@media (max-width: 820px) {
+    .status-advice-card.compact-status-card .status-item {
+        padding-top: 48px !important;
+    }
+    .status-advice-card.compact-status-card .status-state-pill {
+        left: auto !important;
+        right: 14px !important;
+        top: 12px !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # =========================
 # Persistent state defaults
 # =========================
@@ -2531,20 +2635,20 @@ def render_status_panel(rows):
     def status_meta(label):
         label_str = str(label)
         if "総視聴" in label_str or label_str == "視聴回数":
-            return "🎬", "status-views"
+            return "VIEW", "status-views"
         if "YouTube" in label_str or "インプレッション由来" in label_str:
-            return "📥", "status-youtube"
+            return "YT", "status-youtube"
         if "外部" in label_str or "SNS" in label_str:
-            return "🌐", "status-external"
+            return "SNS", "status-external"
         if "CTR" in label_str or "クリック率" in label_str or "サムネイル" in label_str:
-            return "🖼️", "status-ctr"
+            return "CTR", "status-ctr"
         if "維持" in label_str or "平均再生率" in label_str:
-            return "🎧", "status-retention"
+            return "AVG", "status-retention"
         if "ショート" in label_str:
-            return "📱", "status-shorts"
+            return "SHORT", "status-shorts"
         if "課題" in label_str or "最大" in label_str:
-            return "⚡", "status-item-problem"
-        return "✨", "status-warning"
+            return "FOCUS", "status-item-problem"
+        return "KPI", "status-warning"
 
     def extract_first_number(value):
         match = re.search(r"[\d,]+(?:\.\d+)?", str(value))
@@ -2645,7 +2749,7 @@ def render_status_panel(rows):
         panel_parts.extend([
             f'<div class="status-item {class_name} {state_class}{small_class}">',
             f'<div class="status-state-pill">{state_text}</div>',
-            f'<div class="status-icon">{icon}</div>',
+            f'<div class="status-metric-mark">{icon}</div>',
             '<div class="status-content">',
             f'<div class="status-label">{label_text}</div>',
             f'<div class="status-value">{value_text}</div>',
@@ -2664,7 +2768,7 @@ def render_empty_status_panel():
         <div class="advice-card status-advice-card compact-status-card empty-status-panel">
             <div class="status-panel">
                 <div class="status-item status-warning status-item-problem">
-                    <div class="status-icon">📝</div>
+                    <div class="status-metric-mark">INFO</div>
                     <div class="status-content">
                         <div class="status-label">まだ実績データが未入力です</div>
                         <div class="status-value">YouTubeアナリティクスの数値を入力すると、視聴回数・インプレッション・CTR・平均再生率をもとに診断が表示されます。</div>
