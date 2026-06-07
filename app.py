@@ -1,5 +1,8 @@
 import streamlit as st
+import base64
 import html
+import re
+from pathlib import Path
 
 st.set_page_config(
     page_title="AI-MV PDCA Dashboard",
@@ -308,6 +311,47 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-bar"] {
     font-size: 12px;
     margin: -6px 0 8px;
 }
+
+/* =========================
+   V47: zero-padding external header image
+   Rendered via a plain HTML img tag instead of st.image()
+   ========================= */
+.header-image-wrap {
+    margin: -2px 0 8px 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.header-image-wrap img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: top !important;
+    border-radius: 5px !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.24) !important;
+    box-sizing: border-box !important;
+}
+
+/* Keep Streamlit's own image wrapper neutral if it appears elsewhere */
+div[data-testid="stImage"],
+div[data-testid="stImageContainer"] {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 0 !important;
+}
+
+.nav-tabbar-separator {
+    margin-top: 8px !important;
+}
+
 .nav-tabbar-separator {
     height: 2px;
     background: rgba(148, 163, 184, 0.30);
@@ -349,6 +393,37 @@ div[data-testid="stButton"] > button:hover {
     }
 }
 
+
+
+/* Navigation label refinement: image header matching style */
+div[data-testid="stButton"] > button {
+    min-height: 54px !important;
+    letter-spacing: 0.035em !important;
+    font-size: 14px !important;
+    text-transform: none !important;
+    background:
+        linear-gradient(180deg, rgba(31,41,55,0.96), rgba(15,23,42,0.92)) !important;
+    border-color: rgba(255,255,255,0.14) !important;
+    color: #E5E7EB !important;
+}
+div[data-testid="stButton"] > button[kind="primary"] {
+    background:
+        linear-gradient(135deg, rgba(255,0,0,0.98), rgba(185,28,28,0.96)) !important;
+    color: #FFFFFF !important;
+    border-color: rgba(255,255,255,0.20) !important;
+    box-shadow: 0 10px 24px rgba(255,0,0,0.22) !important;
+}
+div[data-testid="stButton"] > button p {
+    font-weight: 950 !important;
+    color: inherit !important;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+}
+div[data-testid="stButton"] > button:hover {
+    border-color: rgba(255,255,255,0.30) !important;
+    filter: brightness(1.06);
+}
+
 /* Metrics */
 div[data-testid="stMetric"] {
     background: linear-gradient(135deg, rgba(56,189,248,0.16), rgba(255,255,255,0.04));
@@ -377,12 +452,24 @@ div[data-testid="stMetricValue"] { color: #FFFFFF !important; font-weight: 900 !
     font-weight: 900;
     letter-spacing: 0.16em;
 }
-.hero h1 {
+.hero h1, .hero-title {
     margin: 8px 0 8px;
     font-size: 2.5rem;
     letter-spacing: -0.04em;
+    font-weight: 900;
+    color: #FFFFFF !important;
 }
 .hero p { color: #CBD5E1 !important; margin-bottom: 0; }
+
+/* Header image loaded as an external PNG file */
+div[data-testid="stImage"] img {
+    border-radius: 5px !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    box-shadow: 0 18px 42px rgba(0,0,0,0.28) !important;
+}
+.header-image-note {
+    margin-bottom: 24px;
+}
 
 .section-heading {
     position: relative;
@@ -1410,6 +1497,317 @@ div[data-testid="stMetric"] {
 }
 
 
+/* V30: section layout refinements */
+.plain-paragraph-block {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 2px 0 12px !important;
+    margin: 2px 0 14px !important;
+    color: #D4D4D4 !important;
+    line-height: 1.85 !important;
+}
+.plain-paragraph-block b {
+    color: #FFFFFF !important;
+}
+.status-advice-card .status-panel {
+    margin: 0 !important;
+    border-radius: 5px !important;
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+.status-advice-card .advice-title {
+    margin-bottom: 16px !important;
+}
+.status-advice-card .status-item {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028)),
+        rgba(18,18,18,0.70) !important;
+}
+.decision-panel {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,0,0,0.06)),
+        rgba(15,15,15,0.84) !important;
+    border-color: rgba(255,255,255,0.13) !important;
+    box-shadow:
+        inset 4px 0 0 rgba(255,0,0,0.72),
+        0 14px 34px rgba(0,0,0,0.22) !important;
+    margin-top: 18px !important;
+    margin-bottom: 18px !important;
+}
+.decision-panel .recommend-title {
+    margin-bottom: 10px !important;
+}
+.decision-panel .recommend-reason {
+    margin-bottom: 0 !important;
+}
+
+
+
+/* V31: Action画面の区切りを整理 */
+.decision-compact {
+    margin-top: 4px !important;
+    margin-bottom: 16px !important;
+    padding-bottom: 14px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.10) !important;
+}
+.decision-compact .recommend-title {
+    font-size: 19px !important;
+    margin-bottom: 8px !important;
+}
+.decision-compact .recommend-reason {
+    margin-bottom: 0 !important;
+}
+
+
+/* V32: 優先課題パネルをすっきり表示 */
+.recommend-panel {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.055), rgba(255,255,255,0.022)),
+        rgba(16,16,16,0.82) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-left: 1px solid rgba(255,255,255,0.12) !important;
+    box-shadow: none !important;
+}
+.recommend-panel .recommend-title {
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 10px !important;
+}
+.recommend-panel .recommend-reason {
+    margin-bottom: 12px !important;
+}
+.recommend-panel .recommend-card {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.055), rgba(255,255,255,0.024)),
+        rgba(22,22,22,0.78) !important;
+    border: 1px solid rgba(255,255,255,0.105) !important;
+    border-left: 1px solid rgba(255,255,255,0.105) !important;
+    box-shadow: none !important;
+}
+.recommend-panel .recommend-card.high,
+.recommend-panel .recommend-card.medium {
+    box-shadow: none !important;
+}
+.recommend-panel .recommend-card.high {
+    background:
+        linear-gradient(135deg, rgba(255,0,0,0.075), rgba(255,255,255,0.028)),
+        rgba(22,22,22,0.80) !important;
+    border-color: rgba(255,255,255,0.13) !important;
+}
+.recommend-panel .recommend-card.medium {
+    background:
+        linear-gradient(135deg, rgba(245,158,11,0.07), rgba(255,255,255,0.026)),
+        rgba(22,22,22,0.80) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+}
+.recommend-panel .recommend-badge {
+    border-radius: 4px !important;
+}
+
+
+
+
+/* =========================
+   V42: geometric pattern removed / enhanced ambient gradient animation
+   - No geometric pattern, no extra layer, no SVG/base64.
+   - Uses only soft moving glows behind the UI.
+   ========================= */
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+section.main,
+.block-container {
+    background: transparent !important;
+}
+
+.stApp {
+    position: relative !important;
+    overflow-x: hidden !important;
+    background:
+        radial-gradient(circle at 12% 4%, rgba(255,0,0,0.22), transparent 29%),
+        radial-gradient(circle at 88% 7%, rgba(255,255,255,0.075), transparent 28%),
+        radial-gradient(circle at 68% 84%, rgba(255,42,42,0.15), transparent 34%),
+        linear-gradient(135deg, #050505 0%, #0F0F0F 46%, #191919 100%) !important;
+}
+
+.stApp::before,
+.stApp::after {
+    content: "" !important;
+    position: fixed !important;
+    inset: -22% !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    will-change: transform, opacity;
+}
+
+.stApp::before {
+    background:
+        radial-gradient(circle at 14% 22%, rgba(255,0,0,0.34), transparent 18%),
+        radial-gradient(circle at 82% 16%, rgba(255,75,75,0.22), transparent 17%),
+        radial-gradient(circle at 70% 78%, rgba(255,255,255,0.075), transparent 20%),
+        radial-gradient(circle at 24% 82%, rgba(255,0,0,0.13), transparent 18%);
+    filter: blur(8px);
+    opacity: 0.78 !important;
+    animation: ytAmbientDriftStrong 15s ease-in-out infinite !important;
+}
+
+.stApp::after {
+    background:
+        radial-gradient(circle at 42% 26%, rgba(255,255,255,0.070), transparent 17%),
+        radial-gradient(circle at 90% 72%, rgba(255,0,0,0.24), transparent 19%),
+        radial-gradient(circle at 8% 58%, rgba(255,75,75,0.16), transparent 16%),
+        radial-gradient(circle at 52% 92%, rgba(255,0,0,0.10), transparent 24%);
+    filter: blur(14px);
+    opacity: 0.56 !important;
+    mix-blend-mode: screen;
+    animation: ytAmbientBreathStrong 9s ease-in-out infinite !important;
+    animation-delay: -2.5s !important;
+}
+
+@keyframes ytAmbientDriftStrong {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.66;
+    }
+    22% {
+        transform: translate3d(2.8%, -1.8%, 0) scale(1.05);
+        opacity: 0.88;
+    }
+    48% {
+        transform: translate3d(-2.2%, 2.0%, 0) scale(0.985);
+        opacity: 0.58;
+    }
+    74% {
+        transform: translate3d(1.8%, 2.4%, 0) scale(1.065);
+        opacity: 0.92;
+    }
+}
+
+@keyframes ytAmbientBreathStrong {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+        opacity: 0.40;
+    }
+    28% {
+        transform: translate3d(-2.4%, 1.4%, 0) scale(1.06) rotate(0.35deg);
+        opacity: 0.66;
+    }
+    55% {
+        transform: translate3d(2.2%, -1.6%, 0) scale(0.98) rotate(-0.2deg);
+        opacity: 0.36;
+    }
+    82% {
+        transform: translate3d(1.0%, 1.1%, 0) scale(1.075) rotate(0.15deg);
+        opacity: 0.72;
+    }
+}
+
+/* Keep the UI above the animated background. */
+.stApp > *,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+section.main,
+.block-container,
+[data-testid="stHeader"] {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+@media (max-width: 760px) {
+    .stApp::before { opacity: 0.58 !important; }
+    .stApp::after { opacity: 0.38 !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stApp::before,
+    .stApp::after {
+        animation: none !important;
+        opacity: 0.40 !important;
+    }
+}
+
+
+
+/* =========================
+   V46: header image spacing refinement
+   ========================= */
+.block-container {
+    padding-top: 0.65rem !important;
+}
+
+/* Tighten the vertical whitespace around the external title image */
+div[data-testid="stImage"] {
+    margin-top: -4px !important;
+    margin-bottom: 10px !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+}
+
+div[data-testid="stImage"] figure,
+div[data-testid="stImage"] > div {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+div[data-testid="stImage"] img {
+    display: block !important;
+    margin: 0 !important;
+    border-radius: 5px !important;
+}
+
+.header-image-note {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.nav-tabbar-separator {
+    margin-top: -1px !important;
+    margin-bottom: 18px !important;
+}
+
+
+
+/* V49: kicker付き見出しのアイコンを外した前提で余白を再調整 */
+.section-heading {
+    padding: 11px 16px 12px 18px !important;
+}
+.section-heading-inner {
+    gap: 2px !important;
+}
+.section-kicker {
+    font-size: 10px !important;
+    letter-spacing: 0.17em !important;
+    margin-bottom: 1px !important;
+    line-height: 1.15 !important;
+}
+.section-title-main {
+    font-size: 18px !important;
+    line-height: 1.35 !important;
+    letter-spacing: -0.015em !important;
+}
+.advice-kicker,
+.recommend-kicker {
+    font-size: 10px !important;
+    letter-spacing: 0.17em !important;
+    margin-bottom: 4px !important;
+    line-height: 1.15 !important;
+}
+.advice-title,
+.recommend-title {
+    font-size: 19px !important;
+    line-height: 1.38 !important;
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 9px !important;
+}
+.recommend-panel {
+    padding-top: 16px !important;
+}
 </style>
 
 """, unsafe_allow_html=True)
@@ -1561,6 +1959,7 @@ _PERSISTENT_FORM_KEYS = [
     "act_views", "likes", "act_imp", "comments", "act_ctr", "subs",
     "retention", "short_views", "sns_posts",
     "next_kpi", "next_goal", "action_reason", "reflection", "next_hypothesis",
+    "presentation_work_intro", "presentation_posting_tips", "presentation_success", "team_learning",
 ]
 for _keep_key in _PERSISTENT_FORM_KEYS:
     if _keep_key in st.session_state:
@@ -1629,13 +2028,14 @@ def render_card(kicker, title, badge, level, status, reason, actions, alert=None
 
 
 def ctr_rank(ctr):
+    """CTRを、サムネイル・タイトルの入口設計として評価する。"""
     if ctr >= 10:
-        return "👑 伝説級クリエイター", "legendary"
+        return "👑 神サムネ級：一瞬で押したくなる入口", "legendary"
     if ctr >= 7:
-        return "🔥 人気クリエイター", "success"
+        return "🔥 強サムネ級：視線を止める入口", "success"
     if ctr >= 4:
-        return "⚔️ 注目クリエイター", "success"
-    return "👶 駆け出しクリエイター", "warning"
+        return "✅ 合格サムネ：クリックされる土台あり", "success"
+    return "🛠️ 改善サムネ：見せ方の再設計チャンス", "warning"
 
 
 def retention_rank(retention):
@@ -1665,7 +2065,7 @@ def choose_main_problem(imp, ctr, retention, short_views, external_ratio):
     if imp < 1000:
         return "インプレッション不足", "インプレッション数が少ないため、SEO・ショート・外部SNSで入口を増やすのが最優先です。"
     if ctr < 4:
-        return "インプレッションのクリック率不足", "インプレッションはあるのにクリックされていない状態です。サムネイルとタイトルの改善が最優先です。"
+        return "サムネイル・タイトル訴求不足", "インプレッションはあるのにクリックされていない状態です。サムネイル・タイトルの入口設計を見直すのが最優先です。"
     if retention < 30:
         return "平均再生率不足", "クリックは取れていますが、途中離脱が多い可能性があります。既存MVを作り直すのではなく、視聴者維持率グラフで離脱ポイントを確認し、固定コメント・概要欄・ショートの切り出し・告知文で期待値を整えましょう。"
     if short_views == 0:
@@ -1710,7 +2110,7 @@ def build_action_recommendations(has_data, data_error, imp, ctr, retention, shor
             recommendations.append({"action": action, "level": level, "reason": why})
 
     if imp < 1000:
-        add("概要欄・タグ・歌詞を修正する", "高", "YouTube AIに動画ジャンルや内容を伝え、インプレッション機会を増やすためです。")
+        add("概要欄・タグ・歌詞を修正する", "高", "YouTubeの検索とおすすめ機能に動画ジャンルや内容を伝え、インプレッション機会を増やすためです。")
         add("既存MVからショート動画を切り出して新しく投稿する", "高", "新規チャンネルでは本編MVだけだと見つけてもらいにくいため、入口を増やします。")
         add("X / Instagram / TikTokで告知する", "中", "YouTube外から初動を作ると、インプレッション拡大のきっかけになります。")
         add("終了画面・カード・再生リストを設定する", "中", "少ない視聴者をチャンネル内で回遊させ、次のインプレッションにつなげます。")
@@ -1764,7 +2164,7 @@ def render_action_recommendation_panel(result):
     parts = [
         '<div class="recommend-panel">',
         '<div class="recommend-kicker">CHECK RESULT LINKED ACTION</div>',
-        f'<div class="recommend-title">🚨 今回の優先課題：{priority}</div>',
+        f'<div class="recommend-title">今回の優先課題：{priority}</div>',
         f'<div class="recommend-reason">{reason}</div>',
     ]
 
@@ -1790,17 +2190,34 @@ def render_action_recommendation_panel(result):
     st.markdown("\n".join(parts), unsafe_allow_html=True)
 
 
+def render_student_decision_panel():
+    """おすすめ提示後に、学生自身が判断するゾーンをコンパクトに表示する。"""
+    st.markdown(
+        """
+        <div class="plain-paragraph-block decision-compact">
+            <div class="recommend-kicker">ACTION STRATEGY</div>
+            <div class="recommend-title">改善アクション選択カルテ</div>
+            <div class="recommend-reason">
+                システムのおすすめは“考えるための補助線”です。おすすめ度が高いものを必ず選ぶ必要はありません。<br>
+                自分たちの作品・ターゲット・投稿前の仮説を踏まえて、次に本当に実行する改善アクションを選んでください。
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_status_panel(rows):
-    """総合ステータスをミニKPIカード風に表示する。"""
+    """総合ステータスを他の診断カードと同じHTML構造で表示する。"""
     def status_meta(label):
         label_str = str(label)
-        if "総視聴" in label_str:
+        if "総視聴" in label_str or "視聴回数" == label_str:
             return "🎬", "status-views"
-        if "YouTube" in label_str:
+        if "YouTube" in label_str or "インプレッション由来" in label_str:
             return "📥", "status-youtube"
         if "外部" in label_str or "SNS" in label_str:
             return "🌐", "status-external"
-        if "CTR" in label_str:
+        if "CTR" in label_str or "クリック率" in label_str or "サムネイル" in label_str:
             return "📊", "status-ctr"
         if "維持" in label_str or "平均再生率" in label_str:
             return "🎧", "status-retention"
@@ -1811,11 +2228,8 @@ def render_status_panel(rows):
         return "✨", "status-warning"
 
     panel_parts = [
+        '<div class="advice-card status-advice-card compact-status-card">',
         '<div class="status-panel">',
-        '<div class="status-panel-header">',
-        '<div class="status-panel-title">現在の総合ステータス</div>',
-        '<div class="status-panel-subtitle">KPI SNAPSHOT</div>',
-        '</div>',
     ]
 
     for label, value in rows:
@@ -1833,24 +2247,22 @@ def render_status_panel(rows):
             '</div>',
         ])
 
-    panel_parts.append('</div>')
+    panel_parts.extend(['</div>', '</div>'])
     st.markdown("\n".join(panel_parts), unsafe_allow_html=True)
 
 
 def render_empty_status_panel():
-    """実績データ未入力時の案内を表示する。"""
+    """実績データ未入力時の案内を、他の診断カードと同じHTML構造で表示する。"""
     st.markdown(
         """
-        <div class="status-panel empty-status-panel">
-            <div class="status-panel-header">
-                <div class="status-panel-title">現在の総合ステータス</div>
-                <div class="status-panel-subtitle">WAITING FOR ANALYTICS DATA</div>
-            </div>
-            <div class="status-item status-warning status-item-problem">
-                <div class="status-icon">📝</div>
-                <div class="status-content">
-                    <div class="status-label">まだ実績データが未入力です</div>
-                    <div class="status-value">YouTubeアナリティクスの数値を入力すると、視聴回数・インプレッション・CTR・平均再生率をもとに診断が表示されます。</div>
+        <div class="advice-card status-advice-card compact-status-card empty-status-panel">
+            <div class="status-panel">
+                <div class="status-item status-warning status-item-problem">
+                    <div class="status-icon">📝</div>
+                    <div class="status-content">
+                        <div class="status-label">まだ実績データが未入力です</div>
+                        <div class="status-value">YouTubeアナリティクスの数値を入力すると、視聴回数・インプレッション・CTR・平均再生率をもとに診断が表示されます。</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1966,10 +2378,17 @@ def render_selected_grouped_list(title, groups, selected_items):
 
 
 
+def strip_leading_icon(text):
+    """kicker付き見出しの本文から、先頭の絵文字・装飾記号だけを外す。"""
+    value = str(text).strip()
+    # 先頭にある絵文字、記号、Variation Selector、空白をまとめて除去
+    return re.sub(r"^[\s\ufe0f\u200d\U0001F300-\U0001FAFF\u2600-\u27BF]+", "", value).strip()
+
+
 def render_section_heading(kicker, title):
     """大きな区切り見出しを、advice-kicker風のラベル付きで描画する。"""
     safe_kicker = html.escape(str(kicker), quote=True)
-    safe_title = html.escape(str(title), quote=True)
+    safe_title = html.escape(strip_leading_icon(title), quote=True)
     section_html = (
         '<div class="section-heading">'
         '<div class="section-heading-inner">'
@@ -2008,31 +2427,12 @@ def parse_plan_actions(text):
 
 
 def render_free_plan_preview(text):
-    """自由記入された施策を見やすいカードで表示する。"""
-    actions = parse_plan_actions(text)
-    if not actions:
-        st.markdown(
-            """
-            <div class="action-list-box free-plan-box">
-                <div class="action-list-title">📝 入力された実施予定の施策</div>
-                <p class="small-note">まだ入力されていません。まずはヒントを見ずに、チームで考えた施策を書き出してみましょう。</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        return []
+    """自由記入された投稿前施策をレポート用に整形して返す。
 
-    item_html = "".join([f"<li>{html.escape(item, quote=True)}</li>" for item in actions])
-    st.markdown(
-        f"""
-        <div class="action-list-box free-plan-box">
-            <div class="action-list-title">📝 入力された実施予定の施策</div>
-            <ul>{item_html}</ul>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    return actions
+    入力欄の直後に同じ内容をプレビュー表示すると冗長になるため、
+    画面表示は行わず、レポート生成用のリスト化だけを担当する。
+    """
+    return parse_plan_actions(text)
 
 def make_report(student_name, video_title, hypothesis, target_audience, planned_actions, target_views, target_ctr,
                 act_views, act_imp, act_ctr, retention, likes, comments, subs, short_views,
@@ -2060,25 +2460,89 @@ def make_report(student_name, video_title, hypothesis, target_audience, planned_
 次回の仮説：{next_hypothesis or '未入力'}
 """
 
+
+def make_presentation_summary(student_name, video_title, presentation_work_intro, presentation_posting_tips,
+                              planned_actions, act_views, act_imp, act_ctr, retention, likes, comments,
+                              subs, short_views, external_ratio, main_problem, reflection,
+                              presentation_success, team_learning, next_actions):
+    """再来週のチーム発表に使える共有メモを自動生成する。"""
+    action_part = "、".join(planned_actions) if planned_actions else "未入力"
+    next_action_part = "、".join(next_actions) if next_actions else "未入力"
+    short_label, _, short_reason = short_rank(short_views)
+    presenter = f"{student_name}さん / チーム" if student_name else "チーム"
+
+    return f"""【最終発表用 共有メモ】
+
+1. 作品紹介
+・発表者：{presenter}
+・作品名：{video_title or '未入力'}
+・作品の推しポイント：{presentation_work_intro or '未入力'}
+
+2. チャンネル・投稿の工夫
+・投稿時に意識したこと：{presentation_posting_tips or '未入力'}
+・投稿前に立てた施策：{action_part}
+
+3. 再生回数を伸ばすために試したこと
+・実際に行った / 次に行う改善アクション：{next_action_part}
+・今回の優先課題：{main_problem}
+
+4. 数字の結果
+・視聴回数：{act_views:,} 回
+・インプレッション：{act_imp:,} 回
+・インプレッションのクリック率（CTR）：{act_ctr:.1f}%
+・平均再生率：{retention:.1f}%
+・高評価数：{likes:,} 件 / コメント数：{comments:,} 件 / 登録者増加：{subs:,} 人
+・ショート最高視聴回数：{short_views:,} 回（{short_label}：{short_reason}）
+・外部トラフィック比率：{external_ratio:.1f}%
+
+5. 数字を見て分かったこと
+・{reflection or '未入力'}
+
+6. 成功事例・共有したい工夫
+・うまくいったこと / 他チームにも共有したいこと：{presentation_success or '未入力'}
+
+7. チームで学んだこと
+・{team_learning or '未入力'}
+
+8. 次に活かすこと
+・今回の結果から、次回は「数字を見る → 原因を考える → 改善を選ぶ → もう一度検証する」の流れをさらに意識する。
+"""
+
 # =========================
 # Header
 # =========================
-st.markdown("""
-<div class="hero">
-    <div class="hero-kicker">AI MUSIC VIDEO / YOUTUBE PDCA DASHBOARD</div>
-    <h1>🎬 AI-MV配信分析システム</h1>
-    <p>生成AI音楽 × MV制作 × YouTube運用を、仮説・実行・分析・改善まで一気通貫で学ぶ実習ツール</p>
-</div>
-""", unsafe_allow_html=True)
+HEADER_IMAGE_PATH = Path(__file__).resolve().parent / "header_ai_mv_pdca.png"
+
+if HEADER_IMAGE_PATH.exists():
+    # st.image()のラッパー余白を避けるため、PNGをHTML imgとして直接表示します。
+    # SVGではなくPNGなので、前回のような表示崩れを起こしにくい方式です。
+    header_b64 = base64.b64encode(HEADER_IMAGE_PATH.read_bytes()).decode("utf-8")
+    st.markdown(
+        f"""
+        <div class="header-image-wrap">
+            <img src="data:image/png;base64,{header_b64}" alt="AI-MV配信分析システム ヘッダー画像">
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+else:
+    # 画像ファイルが見つからない場合の安全なフォールバック
+    st.markdown("""
+    <div class="hero">
+        <div class="hero-kicker">AI MUSIC VIDEO / YOUTUBE PDCA DASHBOARD</div>
+        <div class="hero-title">🎬 AI-MV配信分析システム</div>
+        <p>生成AI音楽 × MV制作 × YouTube運用を、仮説・実行・分析・改善まで一気通貫で学ぶ実習ツール</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================
 # Navigation
 # =========================
 # 入力操作で先頭画面に戻らないよう、現在の画面をsession_stateで保持します。
 NAV_STEPS = [
-    ("plan", "🎯 1. 投稿前 Plan"),
-    ("check", "📊 2. 投稿後 Check"),
-    ("action", "📝 3. 改善 Action & レポート"),
+    ("plan", "［1］ PLAN／投稿前"),
+    ("check", "［2］ CHECK／投稿後分析"),
+    ("action", "［3］ ACTION／改善レポート"),
 ]
 NAV_OPTIONS = [label for _, label in NAV_STEPS]
 NAV_LABEL_BY_KEY = dict(NAV_STEPS)
@@ -2196,17 +2660,17 @@ next_hypothesis = st.session_state.get("next_hypothesis", "")
 # PLAN
 # =========================
 if current_step == NAV_OPTIONS[0]:
-    render_section_heading('PLAN SETUP', '🎯 投稿前：仮説とKPIを決める')
+    render_section_heading('PLAN SETUP', '投稿前：仮説とKPIを決める')
     col_a, col_b = st.columns([1, 1])
     with col_a:
-        with st.container(border=True):
+        with st.container():
             render_subheading("🎵 作品情報")
             student_name = st.text_input("学生名・チーム名（任意）", placeholder="例：NVCチームA", key="student_name")
             video_title = st.text_input("MVタイトル", placeholder="例：電波の向こうへ", key="video_title")
             target_audience = st.text_area("狙うターゲット", placeholder="例：ボカロ好き、AI音楽に興味がある高校生、作業用BGMを探している人", key="target_audience")
             hypothesis = st.text_area("今回の仮説", placeholder="例：サムネを明るくし、タイトルにSunoAIとボカロを入れればCTRが上がるはず", key="hypothesis")
     with col_b:
-        with st.container(border=True):
+        with st.container():
             render_subheading("📈 目標KPI")
             target_views = st.number_input("目標視聴回数（回）", min_value=50, step=50, key="target_views")
             target_ctr = st.slider("目標インプレッションのクリック率（CTR %）", min_value=1.0, max_value=20.0, step=0.1, key="target_ctr")
@@ -2214,11 +2678,11 @@ if current_step == NAV_OPTIONS[0]:
             required_imp = target_views / (target_ctr / 100)
             st.metric("必要インプレッション数の目安", f"{int(required_imp):,} 回")
 
-    with st.container(border=True):
+    with st.container():
         render_subheading("🚀 実施予定の施策（自由記入）")
         st.markdown(
             """
-            <div class="learning-note-box">
+            <div class="plain-paragraph-block">
                 <b>まずは自分たちで作戦を立てるゾーンです。</b><br>
                 ここでは選択肢から選ぶのではなく、チームで考えた投稿前の施策を自由に書いてください。<br>
                 きれいな正解を書くより、<b>「なぜそれをやるのか」</b>まで書けると、投稿後のPDCAがかなり強くなります。
@@ -2260,7 +2724,7 @@ if current_step == NAV_OPTIONS[0]:
         view_badge,
         view_level,
         view_status,
-        f"CTR目標は <b>{target_ctr:.1f}%</b>。ランクは <b>{ctr_label}</b> です。MVでは音と映像の世界観がクリック前に伝わるかが勝負です。",
+        f"サムネイル・タイトルの目標CTRは <b>{target_ctr:.1f}%</b>。入口設計の目安は <b>{ctr_label}</b> です。MVでは、音と映像の世界観がクリック前にどれだけ伝わるかが勝負です。",
         [
             "このMVは、誰に最初に見つけてほしい作品か？",
             "視聴者がクリックする前に、サムネイルとタイトルだけで世界観は伝わるか？",
@@ -2275,8 +2739,8 @@ if current_step == NAV_OPTIONS[0]:
 # CHECK
 # =========================
 if current_step == NAV_OPTIONS[1]:
-    render_section_heading('ANALYTICS CHECK', '📊 投稿後：YouTubeアナリティクスを入力する')
-    with st.container(border=True):
+    render_section_heading('ANALYTICS CHECK', '投稿後：YouTubeアナリティクスを入力する')
+    with st.container():
         render_subheading("🎬 MV本体の実績")
         c1, c2, c3 = st.columns(3)
         with c1:
@@ -2290,7 +2754,7 @@ if current_step == NAV_OPTIONS[1]:
             subs = st.number_input("登録者増加数", min_value=0, step=1, key="subs")
         retention = st.slider("平均再生率（%）", min_value=0.0, max_value=100.0, step=1.0, key="retention")
 
-    with st.container(border=True):
+    with st.container():
         render_subheading("📱 ショート・外部導線")
         c4, c5 = st.columns(2)
         with c4:
@@ -2314,8 +2778,9 @@ if current_step == NAV_OPTIONS[1]:
     external_views = 0 if is_data_error else max(act_views - yt_internal_views, 0)
     external_ratio = 0 if act_views == 0 or is_data_error else external_views / act_views * 100
 
+    render_section_heading('KPI SNAPSHOT', '総合ステータス')
+
     if not has_actual_data:
-        render_section_heading('KPI SNAPSHOT', '🧪 総合ステータス')
         render_empty_status_panel()
         st.markdown(
             """
@@ -2344,12 +2809,11 @@ if current_step == NAV_OPTIONS[1]:
         ret_label, ret_level = retention_rank(retention)
         short_label, short_level, short_reason = short_rank(short_views)
         main_problem, main_reason = choose_main_problem(act_imp, act_ctr, retention, short_views, external_ratio)
-        render_section_heading('KPI SNAPSHOT', '🧪 総合ステータス')
         render_status_panel([
             ("視聴回数", f"{act_views:,} 回"),
             ("インプレッション由来の推定視聴回数", f"{yt_internal_views:,} 回"),
             ("外部・その他トラフィックの推定視聴回数", f"{external_views:,} 回（外部トラフィック比率：{external_ratio:.1f}%）"),
-            ("インプレッションのクリック率ランク", ctr_label),
+            ("サムネイル・タイトル訴求ランク", ctr_label),
             ("平均再生率ランク", ret_label),
             ("ショート視聴回数ランク", f"{short_label}：{short_reason}"),
             ("最大課題", f"{main_problem}：{main_reason}"),
@@ -2361,17 +2825,17 @@ if current_step == NAV_OPTIONS[1]:
                 "IMPRESSION CHECK", "1. インプレッション診断",
                 "🟨 新規チャンネルの壁、出現中！まずはインプレッション数を増やすミッションです", "warning",
                 "動画の魅力以前に、まだYouTube上で十分にインプレッションが発生していない状態です。",
-                "YouTube AIが動画ジャンルを学習しきれていない、または初期導線が弱くインプレッション機会が少ない可能性があります。",
+                "YouTubeの検索とおすすめ機能に、動画のジャンルや内容がまだ十分に伝わっていない、または初期導線が弱くインプレッション機会が少ない可能性があります。",
                 ["タイトルと概要欄に検索される言葉を追加する", "概要欄にフル歌詞と制作クレジットを書く", "ショート・SNS・再生リストから入口を増やす", "終了画面とカードでチャンネル内回遊を作る"],
-                "⚠️ 半角#タグ、歌詞、クレジットはYouTube AIへの名刺です。ここを空欄にすると、AIに自己紹介しないまま戦場に出る感じです。",
+                "⚠️ 半角#タグ、歌詞、クレジットは、YouTubeの検索・おすすめ機能に動画内容を伝えるための名刺です。ここが空欄だと、作品のジャンルや魅力が伝わりにくくなります。",
                 ["概要欄を修正", "既存MVからショートを1本投稿", "終了画面を設定"]
             )
         else:
             render_card(
                 "IMPRESSION CHECK", "1. インプレッション診断",
-                "🟩 インプレッションは順調！YouTube AIが少しずつ味方になっています", "success",
+                "🟩 インプレッションは順調！検索・おすすめ機能で見つかる機会が増えています", "success",
                 "インプレッション数は新規チャンネルとして十分に取れています。次はインプレッションのクリック率と平均再生率の勝負です。",
-                "タイトル・概要欄・初動の反応により、YouTube側が動画を出す価値ありと判断し始めています。",
+                "タイトル・概要欄・初動の反応により、YouTube上で視聴者に見つけてもらう機会が増え始めています。",
                 ["インプレッションのクリック率（CTR）が低ければサムネイル改善", "視聴者維持率が低ければショートの切り出し位置や固定コメントを改善", "関連動画・プレイリストで回遊を伸ばす"],
                 mission=["成功した流入元を確認", "次回のタイトル・タグ設計に反映"]
             )
@@ -2379,28 +2843,28 @@ if current_step == NAV_OPTIONS[1]:
         # CTR card
         if act_ctr >= 10:
             render_card(
-                "CTR CHECK", "2. インプレッションのクリック率診断（CTR）",
-                "👑 インプレッションのクリック率が神レベル！サムネとタイトルが視聴者の親指を止めています", "legendary",
-                "インプレッションのクリック率は非常に高く、サムネイル・タイトルの組み合わせが強力に機能しています。",
-                "映像の世界観、文字の見やすさ、タイトルの引きがうまく噛み合っています。これはチームの成功事例です。",
+                "THUMBNAIL CHECK", "2. サムネイル・タイトル診断（CTR）",
+                "👑 神サムネ級！視聴者の親指を一瞬で止める入口設計です", "legendary",
+                "CTRは非常に高く、サムネイルとタイトルが“見る前の期待”をうまく作れています。",
+                "サムネイルの主役・文字量・色のコントラスト・タイトル冒頭の引きがうまく噛み合っています。これは入口設計の成功事例です。",
                 ["なぜクリックされたのかを言語化する", "他メンバーのサムネ改善に横展開する", "このデザイン法則を次回のテンプレにする"],
                 mission=["成功サムネの共通点を3つ書く", "チーム内で共有"]
             )
         elif act_ctr >= 4:
             render_card(
-                "CTR CHECK", "2. インプレッションのクリック率診断（CTR）",
-                "🔥 インプレッションのクリック率は合格！音楽ファンの入口はしっかり作れています", "success",
-                "インプレッションを受けた人のうち、一定数がクリックしています。サムネとタイトルは最低ラインを突破しています。",
-                "デザインの視認性やタイトルの魅力が機能しています。次は視聴者維持率やコメントなど、見た後の反応を伸ばす段階です。",
+                "THUMBNAIL CHECK", "2. サムネイル・タイトル診断（CTR）",
+                "🔥 強サムネ級！音楽ファンが押したくなる入口は作れています", "success",
+                "インプレッションを受けた人のうち、一定数がクリックしています。サムネイルとタイトルは“押される入口”として機能しています。",
+                "スマホ画面での視認性や、タイトル冒頭の分かりやすさが機能しています。次はクリック後の平均再生率やコメントなど、見た後の反応を伸ばす段階です。",
                 ["良かったサムネ要素を維持する", "タイトルのキーワードを微調整する", "維持率が低ければショートの切り出し位置や固定コメントを改善する"],
                 mission=["成功要素を1つ残す", "改善要素を1つだけ変える"]
             )
         else:
             render_card(
-                "CTR CHECK", "2. インプレッションのクリック率診断（CTR）",
-                "🟥 インプレッションのクリック率は要改善！インプレッションはあるのにスルーされています", "danger",
-                "インプレッションは出ていますが、視聴者がクリックする理由が弱い状態です。",
-                "サムネイルの文字が小さい、世界観が伝わりにくい、タイトルの引きが弱い、右下の時間表示に重要要素が被っている可能性があります。",
+                "THUMBNAIL CHECK", "2. サムネイル・タイトル診断（CTR）",
+                "🟥 サムネ改善チャンス！表示されているのに押されにくい状態です", "danger",
+                "インプレッションは出ていますが、サムネイルとタイトルだけでは、視聴者にクリックする理由が伝わり切っていない状態です。",
+                "サムネイルの文字が小さい、主役が小さい、色のコントラストが弱い、タイトル冒頭の引きが弱い、右下の時間表示に重要要素が被っている可能性があります。",
                 ["サムネイルの文字を太く・短くする", "人物・キャラ・象徴的な絵を大きく配置する", "タイトル冒頭に強いキーワードを入れる", "伸びているメンバーのサムネと横比較する"],
                 "⚠️ サムネの右下は再生時間表示に隠れます。重要な顔・文字・ロゴは中央〜左寄せがおすすめです。",
                 ["サムネイルを差し替え", "タイトルを1案改善", "スマホサイズで再確認"]
@@ -2477,7 +2941,7 @@ if current_step == NAV_OPTIONS[1]:
         if external_ratio < 15:
             render_card(
                 "SNS CHECK", "5. 外部トラフィック診断",
-                "🟨 外部トラフィックが弱め。YouTube AI頼みから脱出するタイミングです", "warning",
+                "🟨 外部トラフィックが弱め。YouTube内の検索・おすすめ頼みから一歩広げるタイミングです", "warning",
                 "視聴の多くがYouTube内に偏っており、SNSからの初動ブーストが弱い状態です。",
                 "XやInstagramでリンクだけを貼ると流れにくいため、動画付き投稿・制作裏話・引用リポストなどの工夫が必要です。ショートの素材も外部SNSに再利用できます。",
                 ["XにはYouTubeリンクだけでなく動画ファイルも添付する", "チーム全員で引用リポストしてお祭り感を作る", "制作秘話やプロンプト紹介で第2波投稿をする", "伸びたショートをTikTok・Instagramリールにも展開する"],
@@ -2487,8 +2951,8 @@ if current_step == NAV_OPTIONS[1]:
             render_card(
                 "SNS CHECK", "5. 外部トラフィック診断",
                 "👑 外部トラフィックが効いています！自力集客の導線が動き始めています", "legendary",
-                "SNSや口コミから視聴者を呼び込めています。これはアルゴリズムに頼りすぎない強い状態です。",
-                "外部から来た視聴者がコメントや高評価を残すと、YouTube内の評価にも良い影響が出る可能性があります。ショートで伸びた素材も、本編への入口としてさらに活用できます。",
+                "SNSや口コミから視聴者を呼び込めています。これはYouTube内の検索・おすすめ機能に頼りすぎない強い状態です。",
+                "外部から来た視聴者がコメントや高評価を残すと、YouTube内での反応として次の発見機会にもつながる可能性があります。ショートで伸びた素材も、本編への入口としてさらに活用できます。",
                 ["コメントには必ず返信する", "第2波投稿で制作裏話を出す", "次回予告を固定コメントに置く", "伸びたショートの続編を外部SNSにも出す"],
                 mission=["コメント返信", "制作裏話をSNS投稿", "次回投稿への導線を作る"]
             )
@@ -2497,7 +2961,7 @@ if current_step == NAV_OPTIONS[1]:
 # ACTION & REPORT
 # =========================
 if current_step == NAV_OPTIONS[2]:
-    render_section_heading('ACTION DESIGN', '📝 改善アクションとPDCAレポート')
+    render_section_heading('ACTION DESIGN', '改善アクションとPDCAレポート')
 
     action_recommendation = build_action_recommendations(
         has_actual_data_global,
@@ -2510,24 +2974,15 @@ if current_step == NAV_OPTIONS[2]:
     )
 
     with st.container(border=True):
-        render_subheading("🚨 Check結果から見たおすすめ改善アクション")
         render_action_recommendation_panel(action_recommendation)
-        st.markdown(
-            """
-            <div class="action-choice-note">
-                <b>ここからは学生さん自身の判断ゾーンです。</b><br>
-                システムのおすすめは“考えるための補助線”です。おすすめ度が高いものを必ず選ぶ必要はありません。<br>
-                自分たちの作品・ターゲット・投稿前の仮説を踏まえて、次に本当に実行する改善アクションを選んでください。
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
-        render_subheading("🔧 自分たちが次に実行する改善アクション")
+    with st.container(border=True):
+        render_student_decision_panel()
+
         action_groups = [
             {
                 "title": "📊 インプレッションのクリック率（CTR）改善：押される見た目に直す",
-                "desc": "インプレッションはあるのにクリックされない時に優先する改善です。",
+                "desc": "インプレッションはあるのにクリックされない時に、サムネイルとタイトルの入口設計を見直す改善です。",
                 "items": [
                     "サムネイルを変更する",
                     "タイトルを変更する",
@@ -2536,7 +2991,7 @@ if current_step == NAV_OPTIONS[2]:
             },
             {
                 "title": "🔎 インプレッション・SEO改善：検索・関連動画に強くする",
-                "desc": "YouTube AIにジャンルや内容を伝え、インプレッション機会を増やす改善です。",
+                "desc": "YouTubeの検索・おすすめ機能にジャンルや内容を伝え、インプレッション機会を増やす改善です。",
                 "items": [
                     "概要欄・タグ・歌詞を修正する",
                     "終了画面・カード・再生リストを設定する",
@@ -2567,7 +3022,7 @@ if current_step == NAV_OPTIONS[2]:
             },
             {
                 "title": "🌐 外部トラフィック改善：YouTube外から視聴者を呼ぶ",
-                "desc": "アルゴリズム任せにせず、SNSやチーム拡散から初動を作る改善です。",
+                "desc": "YouTube内の検索・おすすめ機能だけに頼らず、SNSやチーム拡散から初動を作る改善です。",
                 "items": [
                     "X / Instagram / TikTokで告知する",
                     "チーム内で相互視聴・コメント・引用リポストを行う",
@@ -2642,11 +3097,63 @@ if current_step == NAV_OPTIONS[2]:
     except NameError:
         report_text = "先に『投稿前 Plan』と『投稿後 Check』の数値を入力してください。"
 
-    render_section_heading('REPORT OUTPUT', '📄 自動生成PDCAレポート')
-    st.text_area("コピーして提出用レポートに使えます", value=report_text, height=480)
+    render_section_heading('REPORT OUTPUT', '自動生成PDCAレポート')
+    st.text_area("コピーして提出用レポートに使えます", value=report_text, height=420)
     st.download_button(
         "📥 PDCAレポートをテキストで保存",
         data=report_text.encode("utf-8"),
         file_name="ai_mv_pdca_report.txt",
+        mime="text/plain"
+    )
+
+    render_section_heading('FINAL SHARE', '最終発表用まとめ')
+    st.markdown(
+        """
+        <div class="plain-paragraph-block">
+            長期間使う場合は、このセクションだけ見れば発表準備ができるように、
+            <b>発表用メモの入力</b>と<b>発表用まとめの出力</b>をここに集約しています。<br>
+            発表項目は、<b>作品紹介 → 工夫 → 試したこと → 数字 → 分かったこと → 学び</b>の順で整理すると伝わりやすくなります。
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    render_subheading("📝 発表用メモ入力")
+    presentation_work_intro = st.text_area(
+        "作品紹介で伝えたいこと",
+        placeholder="例：明るいシティポップ調のAI楽曲に、放課後の映像を合わせた青春系MVです。",
+        key="presentation_work_intro",
+    )
+    presentation_posting_tips = st.text_area(
+        "チャンネル・投稿の工夫",
+        placeholder="例：タイトルの冒頭にAI MVと入れ、サムネイルでは曲の世界観が一目で伝わるようにした。",
+        key="presentation_posting_tips",
+    )
+    presentation_success = st.text_area(
+        "成功事例・共有したい工夫",
+        placeholder="例：ショートの固定コメントに本編URLを置いたことで、本編への導線を作れた。",
+        key="presentation_success",
+    )
+    team_learning = st.text_area(
+        "チームで学んだこと",
+        placeholder="例：再生回数だけでなく、インプレッションやCTRを見ると改善すべき場所が分かると学んだ。",
+        key="team_learning",
+    )
+
+    try:
+        presentation_text = make_presentation_summary(
+            student_name, video_title, presentation_work_intro, presentation_posting_tips,
+            planned_actions, act_views, act_imp, act_ctr, retention, likes, comments,
+            subs, short_views, external_ratio, main_problem, reflection,
+            presentation_success, team_learning, next_actions
+        )
+    except NameError:
+        presentation_text = "先に『投稿前 Plan』『投稿後 Check』『改善 Action』の内容を入力してください。"
+
+    render_subheading("📋 発表用まとめ出力")
+    st.text_area("発表スライド作成の下書きに使えます", value=presentation_text, height=520)
+    st.download_button(
+        "📥 最終発表メモをテキストで保存",
+        data=presentation_text.encode("utf-8"),
+        file_name="ai_mv_final_presentation_memo.txt",
         mime="text/plain"
     )
