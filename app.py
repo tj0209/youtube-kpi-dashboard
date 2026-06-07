@@ -2549,7 +2549,7 @@ def retention_rank(retention):
 
 
 def short_rank(short_views):
-    """連動ショートの最高視聴回数を、授業用の目安として評価する。"""
+    """連動ショート動画の最高視聴回数（回）を、授業用の目安として評価する。"""
     if short_views <= 0:
         return "🟨 未投稿・未検証", "warning", "まだ無料広告チラシを配っていない状態"
     if short_views < 500:
@@ -2580,11 +2580,11 @@ def choose_main_problem(imp, ctr, retention, short_views, external_ratio):
 
 
 def build_action_recommendations(has_data, data_error, imp, ctr, retention, short_views, external_ratio):
-    """投稿後Checkの結果から、Action画面で提示するおすすめ対策を作る。"""
+    """［2］CHECK／投稿後分析の結果から、［3］ACTION／改善レポートで提示するおすすめ対策を作る。"""
     if not has_data:
         return {
-            "priority": "実績データ未入力",
-            "reason": "投稿後CheckにYouTubeアナリティクスの数値を入力すると、結果に応じたおすすめ改善アクションが表示されます。",
+            "priority": "YouTubeアナリティクス未入力",
+            "reason": "［2］CHECK／投稿後分析でYouTubeアナリティクスの数値を入力すると、結果に応じたおすすめ改善アクションが表示されます。",
             "recommendations": [],
             "recommended_map": {},
         }
@@ -2684,7 +2684,7 @@ def render_action_recommendation_panel(result):
             ])
         parts.append('</div>')
     else:
-        parts.append('<div class="action-choice-note">先に「2. 投稿後 Check」で実績値を入力してください。おすすめは、入力されたKPIに応じて表示されます。</div>')
+        parts.append('<div class="action-choice-note">先に［2］CHECK／投稿後分析でYouTubeアナリティクスの数値を入力してください。おすすめは、入力されたKPIに応じて表示されます。</div>')
 
     parts.append('</div>')
     st.markdown("\n".join(parts), unsafe_allow_html=True)
@@ -2839,7 +2839,7 @@ def render_status_panel(rows):
 
 
 def render_empty_status_panel():
-    """実績データ未入力時の案内を、他の診断カードと同じHTML構造で表示する。"""
+    """YouTubeアナリティクス未入力時の案内を、他の診断カードと同じHTML構造で表示する。"""
     st.markdown(
         """
         <div class="advice-card status-advice-card compact-status-card empty-status-panel">
@@ -2847,8 +2847,8 @@ def render_empty_status_panel():
                 <div class="status-item status-warning status-item-problem">
                     <div class="status-metric-mark">INFO</div>
                     <div class="status-content">
-                        <div class="status-label">まだ実績データが未入力です</div>
-                        <div class="status-value">YouTubeアナリティクスの数値を入力すると、視聴回数・インプレッション・CTR・平均再生率をもとに診断が表示されます。</div>
+                        <div class="status-label">まだYouTubeアナリティクスの数値が未入力です</div>
+                        <div class="status-value">YouTubeアナリティクスの数値を入力すると、視聴回数・インプレッション・インプレッションのクリック率（CTR）・平均再生率をもとに診断が表示されます。</div>
                     </div>
                 </div>
             </div>
@@ -3087,13 +3087,13 @@ def make_report(student_name, video_title, hypothesis, target_audience, planned_
 ■ 対象作品
 {name_part}MV「{video_title or '未入力'}」について、投稿前には「{hypothesis or '未入力'}」という仮説を立て、主なターゲットを「{target_audience or '未入力'}」に設定した。投稿前の目標は、視聴回数 {target_views:,} 回、インプレッションのクリック率（CTR） {target_ctr:.1f}% であり、実施施策は「{action_part}」である。
 
-■ 実績確認（Check）
-投稿後の実績は、視聴回数 {act_views:,} 回、インプレッション {act_imp:,} 回、インプレッションのクリック率（CTR） {act_ctr:.1f}%、平均再生率 {retention:.1f}% となった。高評価数は {likes:,} 件、コメント数は {comments:,} 件、チャンネル登録者増加は {subs:,} 人、連動ショートの最高視聴回数は {short_views:,} 回である。ショート評価は「{short_label}」であり、{short_reason}。計算上、外部・その他トラフィックの推定視聴回数は約 {external_views:,} 回、外部トラフィック比率は {external_ratio:.1f}% と考えられる。
+■ 投稿後分析（CHECK）
+YouTubeアナリティクスの数値は、視聴回数 {act_views:,} 回、インプレッション {act_imp:,} 回、インプレッションのクリック率（CTR） {act_ctr:.1f}%、平均再生率 {retention:.1f}% となった。高評価数は {likes:,} 件、コメント数は {comments:,} 件、チャンネル登録者増加は {subs:,} 人、連動ショート動画の最高視聴回数は {short_views:,} 回である。ショート評価は「{short_label}」であり、{short_reason}。計算上、外部・その他トラフィックの推定視聴回数は約 {external_views:,} 回、外部トラフィック比率は {external_ratio:.1f}% と考えられる。
 
 ■ 診断
 今回の最大課題は「{main_problem}」である。{choose_main_problem(act_imp, act_ctr, retention, short_views, external_ratio)[1]}
 
-■ 次回の改善（Action）
+■ 改善アクション（ACTION）
 次回は「{next_action_part}」を重点施策として実行する。これを選んだ理由は「{action_reason or '未入力'}」である。検証するKPIは「{next_kpi}」、次回目標は「{next_goal or '未入力'}」とする。
 
 ■ 振り返り
@@ -3309,7 +3309,7 @@ external_ratio = 0 if act_views == 0 or is_data_error else external_views / act_
 if is_data_error:
     main_problem = "入力データ確認"
 elif not has_actual_data_global:
-    main_problem = "実績データ未入力"
+    main_problem = "YouTubeアナリティクス未入力"
 else:
     main_problem, _ = choose_main_problem(act_imp, act_ctr, retention, short_views, external_ratio)
 
@@ -3324,18 +3324,18 @@ next_hypothesis = st.session_state.get("next_hypothesis", "")
 # PLAN
 # =========================
 if current_step == NAV_OPTIONS[0]:
-    render_section_heading('PLAN SETUP', '投稿前：仮説とKPIを決める')
+    render_section_heading('PLAN SETUP', '投稿前設計：仮説と目標KPIを決める')
     col_a, col_b = st.columns([1, 1])
     with col_a:
         with st.container():
-            render_subheading("🎵 作品情報")
+            render_subheading("作品情報")
             student_name = st.text_input("学生名・チーム名（任意）", placeholder="例：NVCチームA", key="student_name")
             video_title = st.text_input("MVタイトル", placeholder="例：電波の向こうへ", key="video_title")
             target_audience = st.text_area("狙うターゲット", placeholder="例：ボカロ好き、AI音楽に興味がある高校生、作業用BGMを探している人", key="target_audience")
             hypothesis = st.text_area("今回の仮説", placeholder="例：サムネを明るくし、タイトルにSunoAIとボカロを入れればCTRが上がるはず", key="hypothesis")
     with col_b:
         with st.container():
-            render_subheading("📈 目標KPI")
+            render_subheading("目標KPI")
             target_views = st.number_input("目標視聴回数（回）", min_value=50, step=50, key="target_views")
             target_ctr = st.slider("目標インプレッションのクリック率（CTR %）", min_value=1.0, max_value=20.0, step=0.1, key="target_ctr")
             target_retention = st.slider("目標平均再生率（%）", min_value=5.0, max_value=100.0, step=1.0, key="target_retention")
@@ -3343,7 +3343,7 @@ if current_step == NAV_OPTIONS[0]:
             st.metric("必要インプレッション数の目安", f"{int(required_imp):,} 回")
 
     with st.container():
-        render_subheading("🚀 実施予定の施策（自由記入）")
+        render_subheading("実施予定の施策（自由記入）")
         st.markdown(
             """
             <div class="plain-paragraph-block">
@@ -3384,7 +3384,7 @@ if current_step == NAV_OPTIONS[0]:
 
     render_card(
         "PLAN STRATEGY",
-        "投稿前 戦略カルテ",
+        "投稿前戦略カルテ",
         view_badge,
         view_level,
         view_status,
@@ -3403,9 +3403,9 @@ if current_step == NAV_OPTIONS[0]:
 # CHECK
 # =========================
 if current_step == NAV_OPTIONS[1]:
-    render_section_heading('ANALYTICS CHECK', '投稿後：YouTubeアナリティクスを入力する')
+    render_section_heading('ANALYTICS CHECK', '投稿後分析：YouTubeアナリティクスの数値を入力する')
     with st.container():
-        render_subheading("🎬 MV本体の実績")
+        render_subheading("MV本体のYouTubeアナリティクス数値")
         c1, c2, c3 = st.columns(3)
         with c1:
             act_views = st.number_input("視聴回数（回）", min_value=0, step=10, key="act_views")
@@ -3414,17 +3414,17 @@ if current_step == NAV_OPTIONS[1]:
             act_imp = st.number_input("インプレッション数（回）", min_value=0, step=100, key="act_imp")
             comments = st.number_input("コメント数", min_value=0, step=1, key="comments")
         with c3:
-            act_ctr = st.number_input("CTR（%）", min_value=0.0, max_value=100.0, step=0.1, key="act_ctr")
-            subs = st.number_input("登録者増加数", min_value=0, step=1, key="subs")
+            act_ctr = st.number_input("インプレッションのクリック率（CTR %）", min_value=0.0, max_value=100.0, step=0.1, key="act_ctr")
+            subs = st.number_input("チャンネル登録者増加数（人）", min_value=0, step=1, key="subs")
         retention = st.slider("平均再生率（%）", min_value=0.0, max_value=100.0, step=1.0, key="retention")
 
     with st.container():
-        render_subheading("📱 ショート・外部導線")
+        render_subheading("ショート動画・外部トラフィック")
         c4, c5 = st.columns(2)
         with c4:
-            short_views = st.number_input("連動ショートの最高視聴回数", min_value=0, step=50, key="short_views")
+            short_views = st.number_input("連動ショート動画の最高視聴回数（回）", min_value=0, step=50, key="short_views")
         with c5:
-            sns_posts = st.number_input("SNS告知投稿数", min_value=0, step=1, key="sns_posts")
+            sns_posts = st.number_input("外部SNS告知投稿数（件）", min_value=0, step=1, key="sns_posts")
 
     yt_internal_views = int(act_imp * (act_ctr / 100))
     has_actual_data = any([
@@ -3450,20 +3450,20 @@ if current_step == NAV_OPTIONS[1]:
             """
             <div class="advice-card">
                 <div class="advice-kicker">START CHECK</div>
-                <div class="advice-title">まずはYouTubeアナリティクスの実績数値を入力してください</div>
+                <div class="advice-title">まずはYouTubeアナリティクスの数値を入力してください</div>
                 <div class="result-badge neutral">入力前なので診断はまだ発動していません</div>
                 <p>視聴回数・インプレッション数・インプレッションのクリック率（CTR）・平均再生率を入力すると、原因診断と次の一手が表示されます。</p>
             </div>
             """,
             unsafe_allow_html=True,
         )
-        main_problem = "実績データ未入力"
+        main_problem = "YouTubeアナリティクス未入力"
     elif is_data_error:
         st.markdown(f"""
         <div class="advice-card">
             <div class="advice-kicker">DATA CHECK</div>
             <div class="advice-title">⚠️ 入力データに矛盾があります</div>
-            <div class="result-badge danger">視聴回数より、計算上のYouTube内視聴数が大きくなっています</div>
+            <div class="result-badge danger">視聴回数より、インプレッション由来の推定視聴回数が大きくなっています</div>
             <p>インプレッション <b>{act_imp:,}</b> × CTR <b>{act_ctr:.1f}%</b> = 推定 <b>{yt_internal_views:,}</b> 回です。視聴回数 <b>{act_views:,}</b> 回より大きいため、桁数・期間・別動画の数値混在を確認してください。</p>
         </div>
         """, unsafe_allow_html=True)
@@ -3718,26 +3718,26 @@ if current_step == NAV_OPTIONS[2]:
         st.session_state["_next_actions_cache"] = next_actions
         render_selected_grouped_list("選択中の改善アクション", action_groups, next_actions)
 
-        render_subheading("🧠 選んだ理由")
+        render_subheading("改善アクションを選んだ理由")
         action_reason = st.text_area(
             "なぜその改善アクションを選びましたか？",
             placeholder="例：インプレッションはあるのにCTRが低かったため、まずはサムネイルとタイトルの入口改善を優先する。",
             key="action_reason",
         )
 
-        render_subheading("📌 次回検証するKPI")
+        render_subheading("次回検証するKPI")
         kpi_options = [
             "インプレッションのクリック率（CTR）",
             "インプレッション",
             "平均再生率",
             "視聴回数",
             "コメント数",
-            "登録者増加数",
+            "チャンネル登録者増加数（人）",
             "外部トラフィック比率",
             "ショート視聴回数",
         ]
         next_kpi = st.radio(
-            "次回、重点的に見るKPIを選んでください",
+            "次回のPDCAで重点的に確認するKPIを選んでください",
             kpi_options,
             horizontal=False,
             key="next_kpi",
@@ -3750,7 +3750,7 @@ if current_step == NAV_OPTIONS[2]:
         if is_data_error:
             main_problem = "入力データ確認"
         elif not has_actual_data_global:
-            main_problem = "実績データ未入力"
+            main_problem = "YouTubeアナリティクス未入力"
         else:
             main_problem, _ = choose_main_problem(act_imp, act_ctr, retention, short_views, external_ratio)
         report_text = make_report(
@@ -3759,7 +3759,7 @@ if current_step == NAV_OPTIONS[2]:
             external_views, external_ratio, main_problem, next_actions, next_kpi, next_goal, action_reason, reflection, next_hypothesis
         )
     except NameError:
-        report_text = "先に『投稿前 Plan』と『投稿後 Check』の数値を入力してください。"
+        report_text = "先に［1］PLAN／投稿前と［2］CHECK／投稿後分析の内容を入力してください。"
 
     render_section_heading('REPORT OUTPUT', '自動生成PDCAレポート')
     st.text_area("コピーして提出用レポートに使えます", value=report_text, height=420)
@@ -3865,7 +3865,7 @@ if current_step == NAV_OPTIONS[3]:
             team_learning, next_actions, next_apply
         )
     except NameError:
-        presentation_text = "先に『投稿前 Plan』『投稿後 Check』『改善 Action』の内容を入力してください。"
+        presentation_text = "先に［1］PLAN／投稿前、［2］CHECK／投稿後分析、［3］ACTION／改善レポートの内容を入力してください。"
 
     render_subheading("共有用まとめ出力")
     st.text_area("チーム共有・発表スライド作成の下書きに使えます", value=presentation_text, height=620)
