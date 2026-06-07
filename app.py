@@ -1877,8 +1877,315 @@ if "_intro_loader_seen" not in st.session_state:
             animation-duration: 0.25s !important;
         }
     }
-    </style>
+    
+/* V57: 総合ステータスを状態別カラーのKPIカード化 */
+.status-panel {
+    gap: 12px !important;
+}
+
+.status-item {
+    border-left: 1px solid rgba(255,255,255,0.11) !important;
+    padding: 16px 96px 15px 15px !important;
+    min-height: 96px !important;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.status-item:hover {
+    transform: translateY(-1px);
+}
+
+.status-item::before {
+    display: none !important;
+}
+
+.status-item::after {
+    opacity: 0.28 !important;
+}
+
+.status-state-pill {
+    position: absolute;
+    top: 11px;
+    right: 12px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+    color: #FFFFFF !important;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: none !important;
+}
+
+.status-state-neutral {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.066), rgba(255,255,255,0.024)),
+        rgba(18,18,18,0.72) !important;
+    border-color: rgba(255,255,255,0.13) !important;
+}
+
+.status-state-neutral .status-state-pill {
+    color: #D4D4D4 !important;
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.13);
+}
+
+.status-state-success {
+    background:
+        linear-gradient(135deg, rgba(34,197,94,0.17), rgba(255,255,255,0.025)),
+        rgba(18,18,18,0.74) !important;
+    border-color: rgba(34,197,94,0.34) !important;
+}
+
+.status-state-success .status-state-pill {
+    color: #DCFCE7 !important;
+    background: rgba(34,197,94,0.25);
+    border-color: rgba(34,197,94,0.40);
+}
+
+.status-state-warning {
+    background:
+        linear-gradient(135deg, rgba(245,158,11,0.17), rgba(255,255,255,0.026)),
+        rgba(18,18,18,0.74) !important;
+    border-color: rgba(245,158,11,0.38) !important;
+}
+
+.status-state-warning .status-state-pill {
+    color: #FEF3C7 !important;
+    background: rgba(245,158,11,0.24);
+    border-color: rgba(245,158,11,0.42);
+}
+
+.status-state-danger {
+    background:
+        linear-gradient(135deg, rgba(255,0,0,0.18), rgba(255,255,255,0.024)),
+        rgba(18,18,18,0.76) !important;
+    border-color: rgba(255,0,0,0.42) !important;
+}
+
+.status-state-danger .status-state-pill {
+    color: #FEE2E2 !important;
+    background: rgba(255,0,0,0.26);
+    border-color: rgba(255,0,0,0.46);
+}
+
+.status-state-legendary {
+    background:
+        radial-gradient(circle at top right, rgba(255,0,0,0.18), transparent 38%),
+        linear-gradient(135deg, rgba(255,0,0,0.22), rgba(245,158,11,0.08)),
+        rgba(18,18,18,0.78) !important;
+    border-color: rgba(255,0,0,0.52) !important;
+}
+
+.status-state-legendary .status-state-pill {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #FF0000, #FF4B4B);
+    border-color: rgba(255,255,255,0.18);
+}
+
+.status-state-success .status-icon {
+    background: rgba(34,197,94,0.16) !important;
+    border-color: rgba(34,197,94,0.28) !important;
+}
+
+.status-state-warning .status-icon {
+    background: rgba(245,158,11,0.16) !important;
+    border-color: rgba(245,158,11,0.30) !important;
+}
+
+.status-state-danger .status-icon,
+.status-state-legendary .status-icon {
+    background: rgba(255,0,0,0.16) !important;
+    border-color: rgba(255,0,0,0.30) !important;
+}
+
+.status-item-problem {
+    grid-column: 1 / -1;
+}
+
+.status-item-problem .status-value {
+    font-size: 16px !important;
+    line-height: 1.72 !important;
+}
+
+@media (max-width: 820px) {
+    .status-item {
+        padding-right: 86px !important;
+    }
+}
+
+</style>
     """, unsafe_allow_html=True)
+
+# =========================
+# V58: 総合ステータスKPIカードのライン除去・バッジ表示の安定化
+# =========================
+st.markdown("""
+<style>
+/* 総合ステータスは毎回再描画時にこのCSSを適用する。
+   旧バージョンの左ライン／疑似要素／大きすぎる右余白を確実に上書き。 */
+.status-advice-card.compact-status-card {
+    border-left: 0 !important;
+}
+.status-advice-card.compact-status-card .status-panel {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+.status-advice-card.compact-status-card .status-item {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    align-items: start !important;
+    min-height: 98px !important;
+    padding: 16px 16px 15px 16px !important;
+    border-left: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+.status-advice-card.compact-status-card .status-item::before,
+.status-advice-card.compact-status-card .status-youtube::before,
+.status-advice-card.compact-status-card .status-external::before,
+.status-advice-card.compact-status-card .status-ctr::before,
+.status-advice-card.compact-status-card .status-retention::before,
+.status-advice-card.compact-status-card .status-shorts::before,
+.status-advice-card.compact-status-card .status-views::before,
+.status-advice-card.compact-status-card .status-warning::before,
+.status-advice-card.compact-status-card .status-item-problem::before {
+    content: none !important;
+    display: none !important;
+    width: 0 !important;
+    opacity: 0 !important;
+}
+.status-advice-card.compact-status-card .status-item::after {
+    opacity: 0.18 !important;
+}
+.status-advice-card.compact-status-card .status-content {
+    min-width: 0 !important;
+    padding-left: 0 !important;
+}
+.status-advice-card.compact-status-card .status-label {
+    padding-right: 74px !important;
+    margin-bottom: 7px !important;
+}
+.status-advice-card.compact-status-card .status-value {
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+}
+.status-advice-card.compact-status-card .status-state-pill {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    z-index: 5 !important;
+    min-width: 46px !important;
+    padding: 4px 9px !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+}
+.status-advice-card.compact-status-card .status-icon {
+    margin-top: 3px !important;
+}
+.status-advice-card.compact-status-card .status-item-problem {
+    grid-column: 1 / -1 !important;
+}
+.status-advice-card.compact-status-card .status-item-problem .status-label {
+    padding-right: 86px !important;
+}
+@media (max-width: 820px) {
+    .status-advice-card.compact-status-card .status-panel {
+        grid-template-columns: 1fr !important;
+    }
+    .status-advice-card.compact-status-card .status-label {
+        padding-right: 70px !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =========================
+# V59: 総合ステータス右上バッジを「おすすめ度：高」風に明確化
+# =========================
+st.markdown("""
+<style>
+.status-advice-card.compact-status-card .status-item {
+    padding: 16px 16px 15px 16px !important;
+}
+.status-advice-card.compact-status-card .status-label {
+    padding-right: 132px !important;
+}
+.status-advice-card.compact-status-card .status-state-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: auto !important;
+    max-width: 138px !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-size: 10.5px !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0.02em !important;
+    white-space: nowrap !important;
+    color: #111827 !important;
+    background: #E5E7EB !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    box-shadow: none !important;
+}
+.status-advice-card.compact-status-card .status-state-neutral .status-state-pill {
+    color: #111827 !important;
+    background: #E5E7EB !important;
+    border-color: rgba(229,231,235,0.42) !important;
+}
+.status-advice-card.compact-status-card .status-state-success .status-state-pill {
+    color: #052E16 !important;
+    background: #86EFAC !important;
+    border-color: rgba(134,239,172,0.48) !important;
+}
+.status-advice-card.compact-status-card .status-state-warning .status-state-pill {
+    color: #422006 !important;
+    background: #FCD34D !important;
+    border-color: rgba(252,211,77,0.50) !important;
+}
+.status-advice-card.compact-status-card .status-state-danger .status-state-pill {
+    color: #450A0A !important;
+    background: #FCA5A5 !important;
+    border-color: rgba(252,165,165,0.52) !important;
+}
+.status-advice-card.compact-status-card .status-state-legendary .status-state-pill {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #FF0000, #FF4B4B) !important;
+    border-color: rgba(255,255,255,0.18) !important;
+}
+.status-advice-card.compact-status-card .status-item-problem .status-label {
+    padding-right: 132px !important;
+}
+@media (max-width: 820px) {
+    .status-advice-card.compact-status-card .status-label,
+    .status-advice-card.compact-status-card .status-item-problem .status-label {
+        padding-right: 0 !important;
+        margin-top: 24px !important;
+    }
+    .status-advice-card.compact-status-card .status-state-pill {
+        left: 66px !important;
+        right: auto !important;
+        top: 12px !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
 
 # =========================
 # Persistent state defaults
@@ -2220,24 +2527,99 @@ def render_student_decision_panel():
 
 
 def render_status_panel(rows):
-    """総合ステータスを他の診断カードと同じHTML構造で表示する。"""
+    """総合ステータスの各項目を、状態が一目で分かる色分けKPIカードとして表示する。"""
     def status_meta(label):
         label_str = str(label)
-        if "総視聴" in label_str or "視聴回数" == label_str:
+        if "総視聴" in label_str or label_str == "視聴回数":
             return "🎬", "status-views"
         if "YouTube" in label_str or "インプレッション由来" in label_str:
             return "📥", "status-youtube"
         if "外部" in label_str or "SNS" in label_str:
             return "🌐", "status-external"
         if "CTR" in label_str or "クリック率" in label_str or "サムネイル" in label_str:
-            return "📊", "status-ctr"
+            return "🖼️", "status-ctr"
         if "維持" in label_str or "平均再生率" in label_str:
             return "🎧", "status-retention"
         if "ショート" in label_str:
-            return "📱", "status-external"
+            return "📱", "status-shorts"
         if "課題" in label_str or "最大" in label_str:
-            return "🚨", "status-item-problem"
+            return "⚡", "status-item-problem"
         return "✨", "status-warning"
+
+    def extract_first_number(value):
+        match = re.search(r"[\d,]+(?:\.\d+)?", str(value))
+        if not match:
+            return 0.0
+        return float(match.group(0).replace(",", ""))
+
+    def status_state(label, value):
+        """ラベルと値から、総合ステータス用の色と状態ラベルを決める。"""
+        label_str = str(label)
+        value_str = str(value)
+
+        if "最大" in label_str or "課題" in label_str:
+            if "総合的に良好" in value_str:
+                return "status-state-success", "良好"
+            if "入力" in value_str or "確認" in value_str:
+                return "status-state-warning", "確認"
+            return "status-state-danger", "優先"
+
+        if label_str == "視聴回数" or "総視聴" in label_str:
+            num = extract_first_number(value_str)
+            if num >= 1000:
+                return "status-state-legendary", "大反応"
+            if num >= 300:
+                return "status-state-success", "好調"
+            if num > 0:
+                return "status-state-neutral", "記録"
+            return "status-state-neutral", "未入力"
+
+        if "インプレッション由来" in label_str or ("YouTube" in label_str and "視聴" in label_str):
+            return "status-state-neutral", "参考"
+
+        if "外部" in label_str or "SNS" in label_str:
+            ratio_match = re.search(r"(\d+(?:\.\d+)?)%", value_str)
+            ratio = float(ratio_match.group(1)) if ratio_match else 0.0
+            if ratio >= 30:
+                return "status-state-legendary", "強い"
+            if ratio >= 15:
+                return "status-state-success", "接続"
+            if ratio > 0:
+                return "status-state-warning", "弱め"
+            return "status-state-danger", "未接続"
+
+        if "CTR" in label_str or "クリック率" in label_str or "サムネイル" in label_str:
+            if "神" in value_str:
+                return "status-state-legendary", "神サムネ"
+            if "強" in value_str or "合格" in value_str:
+                return "status-state-success", "良好"
+            if "改善" in value_str or "再設計" in value_str:
+                return "status-state-warning", "改善"
+            return "status-state-neutral", "確認"
+
+        if "維持" in label_str or "平均再生率" in label_str:
+            if "沼" in value_str:
+                return "status-state-legendary", "高維持"
+            if "しっかり" in value_str:
+                return "status-state-success", "良好"
+            if "途中" in value_str:
+                return "status-state-warning", "注意"
+            if "改善" in value_str or "🟥" in value_str:
+                return "status-state-danger", "要改善"
+            return "status-state-neutral", "確認"
+
+        if "ショート" in label_str:
+            if "覚醒" in value_str:
+                return "status-state-legendary", "覚醒"
+            if "強い" in value_str or "入口として機能中" in value_str:
+                return "status-state-success", "好調"
+            if "火種" in value_str:
+                return "status-state-warning", "火種"
+            if "未投稿" in value_str or "未検証" in value_str:
+                return "status-state-warning", "未検証"
+            return "status-state-neutral", "確認"
+
+        return "status-state-neutral", "確認"
 
     panel_parts = [
         '<div class="advice-card status-advice-card compact-status-card">',
@@ -2246,11 +2628,23 @@ def render_status_panel(rows):
 
     for label, value in rows:
         icon, class_name = status_meta(label)
+        state_class, state_label = status_state(label, value)
         label_text = html.escape(str(label), quote=True)
         value_text = html.escape(str(value), quote=True).replace("\n", "<br>")
+        badge_prefix = "状態"
+        if "CTR" in label_text or "クリック率" in label_text or "サムネイル" in label_text:
+            badge_prefix = "サムネ評価"
+        elif "ショート" in label_text:
+            badge_prefix = "ショート評価"
+        elif "最大" in label_text or "課題" in label_text:
+            badge_prefix = "優先度"
+        elif "外部" in label_text or "SNS" in label_text:
+            badge_prefix = "導線"
+        state_text = html.escape(f"{badge_prefix}：{state_label}", quote=True)
         small_class = " status-item-small" if len(str(value)) > 14 else ""
         panel_parts.extend([
-            f'<div class="status-item {class_name}{small_class}">',
+            f'<div class="status-item {class_name} {state_class}{small_class}">',
+            f'<div class="status-state-pill">{state_text}</div>',
             f'<div class="status-icon">{icon}</div>',
             '<div class="status-content">',
             f'<div class="status-label">{label_text}</div>',
@@ -2479,7 +2873,7 @@ def make_presentation_summary(student_name, video_title, team_member_count, team
                               subs, short_views, external_ratio, main_problem, reflection,
                               team_numbers_insight, team_success_pattern, team_challenge_pattern,
                               team_learning, next_actions, next_apply):
-    """チーム単位の最終発表に使える共有メモを自動生成する。
+    """チーム単位の共有発表に使える共有メモを自動生成する。
 
     4人前後のグループで複数のMVを投稿している前提のため、
     1作品だけの成果報告ではなく、チーム全体の傾向・代表事例・再現できる学びをまとめる。
@@ -2490,7 +2884,7 @@ def make_presentation_summary(student_name, video_title, team_member_count, team
     representative_title = video_title or "未入力"
     member_text = f"約{team_member_count}人" if team_member_count else "未入力"
 
-    return f"""【最終発表用 チーム共有メモ】
+    return f"""【SHARE用 チーム共有メモ】
 
 1. チーム全体の作品紹介・傾向
 ・チーム人数の目安：{member_text}
@@ -2563,6 +2957,7 @@ NAV_STEPS = [
     ("plan", "［1］ PLAN／投稿前"),
     ("check", "［2］ CHECK／投稿後分析"),
     ("action", "［3］ ACTION／改善レポート"),
+    ("share", "［4］ SHARE／共有"),
 ]
 NAV_OPTIONS = [label for _, label in NAV_STEPS]
 NAV_LABEL_BY_KEY = dict(NAV_STEPS)
@@ -2668,6 +3063,15 @@ has_actual_data_global = any([
 is_data_error = has_actual_data_global and act_views < yt_internal_views
 external_views = 0 if is_data_error else max(act_views - yt_internal_views, 0)
 external_ratio = 0 if act_views == 0 or is_data_error else external_views / act_views * 100
+
+# 画面をまたいでPDCAレポート・共有用まとめに使えるよう、
+# 現時点の実績データから優先課題を常に計算しておきます。
+if is_data_error:
+    main_problem = "入力データ確認"
+elif not has_actual_data_global:
+    main_problem = "実績データ未入力"
+else:
+    main_problem, _ = choose_main_problem(act_imp, act_ctr, retention, short_views, external_ratio)
 
 next_actions = st.session_state.get("_next_actions_cache", PERSISTENT_DEFAULTS["_next_actions_cache"])
 next_kpi = st.session_state.get("next_kpi", "インプレッションのクリック率（CTR）")
@@ -3126,7 +3530,21 @@ if current_step == NAV_OPTIONS[2]:
         mime="text/plain"
     )
 
-    render_section_heading('FINAL SHARE', '最終発表用まとめ')
+# =========================
+# SHARE
+# =========================
+if current_step == NAV_OPTIONS[3]:
+    render_section_heading('TEAM SHARE', 'チーム共有用まとめ')
+    st.markdown(
+        """
+        <div class="plain-paragraph-block">
+            <b>この画面は、発表当日に向けてチームの実践結果を共有用に整理する画面です。</b><br>
+            発表当日までは、まず <b>［1］PLAN</b>、<b>［2］CHECK</b>、<b>［3］ACTION</b> を使って個人のPDCAを回してください。<br>
+            その結果を持ち寄って、発表当日に向けてこの画面でチーム全体の傾向と代表事例を整理します。
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown(
         """
         <div class="plain-paragraph-block">
@@ -3137,7 +3555,7 @@ if current_step == NAV_OPTIONS[2]:
         """,
         unsafe_allow_html=True,
     )
-    render_subheading("発表用メモ入力")
+    render_subheading("共有用メモ入力")
     col_team_a, col_team_b = st.columns([1, 2])
     with col_team_a:
         team_member_count = st.number_input(
@@ -3207,10 +3625,10 @@ if current_step == NAV_OPTIONS[2]:
     except NameError:
         presentation_text = "先に『投稿前 Plan』『投稿後 Check』『改善 Action』の内容を入力してください。"
 
-    render_subheading("発表用まとめ出力")
-    st.text_area("チーム発表スライド作成の下書きに使えます", value=presentation_text, height=620)
+    render_subheading("共有用まとめ出力")
+    st.text_area("チーム共有・発表スライド作成の下書きに使えます", value=presentation_text, height=620)
     st.download_button(
-        "📥 最終発表メモをテキストで保存",
+        "📥 共有メモをテキストで保存",
         data=presentation_text.encode("utf-8"),
         file_name="ai_mv_team_final_presentation_memo.txt",
         mime="text/plain"
