@@ -1288,16 +1288,24 @@ div[data-testid="stSlider"]:focus-within {
     border-radius: 0 !important;
 }
 
-/* sub-heading：kickerを消し、アイコンと文字を読みやすく */
+/* sub-heading：上部の赤ボーダーを外し、落ち着いた入力見出しへ */
 .sub-heading {
     gap: 0 !important;
-    padding: 10px 12px !important;
+    padding: 9px 12px 8px !important;
+    margin: 4px 0 10px !important;
     border-left: 0 !important;
-    border-top: 2px solid rgba(255,0,0,0.66) !important;
-    border-radius: 5px 5px 0 0 !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 0 !important;
     background:
-        linear-gradient(135deg, rgba(255,0,0,0.12), rgba(255,255,255,0.035)),
-        rgba(18,18,18,0.72) !important;
+        linear-gradient(135deg, rgba(255,255,255,0.060), rgba(255,255,255,0.018)),
+        rgba(18,18,18,0.46) !important;
+    box-shadow: none !important;
+}
+.sub-heading span {
+    color: #F8FAFC !important;
+    font-size: 15px !important;
+    letter-spacing: 0.01em !important;
 }
 .sub-heading .sub-heading-kicker {
     display: none !important;
