@@ -1808,6 +1808,75 @@ div[data-testid="stImage"] img {
 .recommend-panel {
     padding-top: 16px !important;
 }
+
+
+/* V61: SHARE slide creation hint cards */
+.slide-hint-panel {
+    background: rgba(255,255,255,0.035) !important;
+    border: 1px solid rgba(148,163,184,0.20) !important;
+    border-radius: 5px !important;
+    padding: 16px 16px 14px !important;
+    margin: 10px 0 22px !important;
+}
+.slide-hint-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+.slide-hint-card {
+    background: rgba(2,6,23,0.34) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 5px !important;
+    padding: 13px 13px 12px !important;
+}
+.slide-hint-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    font-weight: 900;
+    color: #F87171 !important;
+    margin-bottom: 7px;
+}
+.slide-hint-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: #FFFFFF !important;
+    margin-bottom: 6px;
+}
+.slide-hint-card p,
+.slide-hint-card li {
+    font-size: 13px;
+    color: #CBD5E1 !important;
+    line-height: 1.75;
+}
+.slide-hint-card ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+.slide-hint-prompt {
+    margin-top: 12px;
+    padding: 12px 13px;
+    border-radius: 5px;
+    background: rgba(255,0,0,0.055);
+    border: 1px solid rgba(255,0,0,0.16);
+    color: #E5E7EB !important;
+    font-size: 13px;
+    line-height: 1.75;
+}
+.slide-hint-prompt code {
+    color: #FFFFFF !important;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+@media (max-width: 900px) {
+    .slide-hint-grid { grid-template-columns: 1fr; }
+}
+
 </style>
 
 """, unsafe_allow_html=True)
@@ -2924,6 +2993,60 @@ def render_subheading(text):
 
 
 
+
+
+def render_slide_creation_hints():
+    """チーム共有メモをスライド化するときのヒントを表示する。"""
+    st.markdown(
+        """
+        <div class="slide-hint-panel">
+            <div class="recommend-kicker">SLIDE DESIGN HINT</div>
+            <div class="recommend-title">共有メモをスライドに育てるヒント</div>
+            <div class="recommend-reason">
+                ここで出力される共有メモは、完成版スライドではなく、チームで考えるための材料です。<br>
+                生成AIやCanva、Googleスライドを使う場合も、最後は<b>チームの発見・数字の読み取り・代表事例</b>を自分たちの言葉で整えましょう。
+            </div>
+            <div class="slide-hint-grid">
+                <div class="slide-hint-card">
+                    <div class="slide-hint-label">AI ASSIST</div>
+                    <div class="slide-hint-title">生成AIには“構成案”を相談する</div>
+                    <p>文章を丸投げするのではなく、発表の流れ・見出し案・話す順番を相談すると、チームの考えを整理しやすくなります。</p>
+                    <ul>
+                        <li>5〜7枚のスライド構成案を出してもらう</li>
+                        <li>数字の見せ方を相談する</li>
+                        <li>発表時間に合わせて要約してもらう</li>
+                    </ul>
+                </div>
+                <div class="slide-hint-card">
+                    <div class="slide-hint-label">DESIGN TOOL</div>
+                    <div class="slide-hint-title">Canva / Googleスライドで見せ方を作る</div>
+                    <p>デザインツールでは、文章を詰め込まず、数字・サムネ・ショート・代表事例を大きく見せると伝わりやすくなります。</p>
+                    <ul>
+                        <li>1スライド1メッセージ</li>
+                        <li>グラフや数字カードで結果を見せる</li>
+                        <li>代表作品のサムネ画像を入れる</li>
+                    </ul>
+                </div>
+                <div class="slide-hint-card">
+                    <div class="slide-hint-label">TEAM ORIGINAL</div>
+                    <div class="slide-hint-title">最後はチームの考察で仕上げる</div>
+                    <p>一番大事なのは、うまくいった理由・伸び悩んだ理由・次に活かせることを、自分たちの言葉で説明することです。</p>
+                    <ul>
+                        <li>数字を見て分かったことを書く</li>
+                        <li>代表事例を1〜2個に絞る</li>
+                        <li>他チームも真似できる工夫にする</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-hint-prompt">
+                <b>生成AIに相談する例：</b><br>
+                <code>以下の共有メモをもとに、5分発表用のスライド構成を6枚で提案してください。各スライドは「タイトル」「載せる内容」「話すポイント」を短くまとめ、数字の結果・代表事例・次に活かすことが伝わる構成にしてください。</code>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def parse_plan_actions(text):
     """自由記入された投稿前施策を、レポート用のリストに整形する。"""
     if not text:
@@ -3024,6 +3147,11 @@ def make_presentation_summary(student_name, video_title, team_member_count, team
 
 7. 次に活かすこと
 ・{next_apply or '今回の結果をもとに、次回は「数字を見る → 原因を考える → 改善を選ぶ → もう一度検証する」の流れをさらに意識する。'}
+
+8. スライド化のヒント
+・生成AIには、完成文を丸投げするのではなく、スライド構成案・見出し案・発表時間に合わせた整理を相談する。
+・CanvaやGoogleスライドでは、1スライド1メッセージにして、数字・サムネイル・代表事例を大きく見せる。
+・最終的な考察や言葉選びは、チームで話し合って自分たちの表現に整える。
 """
 
 # =========================
@@ -3659,6 +3787,8 @@ if current_step == NAV_OPTIONS[3]:
         """,
         unsafe_allow_html=True,
     )
+    render_slide_creation_hints()
+
     render_subheading("共有用メモ入力")
     col_team_a, col_team_b = st.columns([1, 2])
     with col_team_a:
