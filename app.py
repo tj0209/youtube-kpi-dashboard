@@ -1908,6 +1908,16 @@ PERSISTENT_DEFAULTS = {
     "action_reason": "",
     "reflection": "",
     "next_hypothesis": "",
+    "team_member_count": 4,
+    "team_work_overview": "",
+    "team_posting_tips": "",
+    "team_action_overview": "",
+    "representative_case": "",
+    "team_numbers_insight": "",
+    "team_success_pattern": "",
+    "team_challenge_pattern": "",
+    "team_learning": "",
+    "next_apply": "",
     "_planned_actions_cache": [],
     "_next_actions_cache": [],
 }
@@ -1959,7 +1969,9 @@ _PERSISTENT_FORM_KEYS = [
     "act_views", "likes", "act_imp", "comments", "act_ctr", "subs",
     "retention", "short_views", "sns_posts",
     "next_kpi", "next_goal", "action_reason", "reflection", "next_hypothesis",
-    "presentation_work_intro", "presentation_posting_tips", "presentation_success", "team_learning",
+    "team_member_count", "team_work_overview", "team_posting_tips", "team_action_overview",
+    "representative_case", "team_numbers_insight", "team_success_pattern", "team_challenge_pattern",
+    "team_learning", "next_apply",
 ]
 for _keep_key in _PERSISTENT_FORM_KEYS:
     if _keep_key in st.session_state:
@@ -2461,51 +2473,59 @@ def make_report(student_name, video_title, hypothesis, target_audience, planned_
 """
 
 
-def make_presentation_summary(student_name, video_title, presentation_work_intro, presentation_posting_tips,
+def make_presentation_summary(student_name, video_title, team_member_count, team_work_overview,
+                              team_posting_tips, team_action_overview, representative_case,
                               planned_actions, act_views, act_imp, act_ctr, retention, likes, comments,
                               subs, short_views, external_ratio, main_problem, reflection,
-                              presentation_success, team_learning, next_actions):
-    """再来週のチーム発表に使える共有メモを自動生成する。"""
+                              team_numbers_insight, team_success_pattern, team_challenge_pattern,
+                              team_learning, next_actions, next_apply):
+    """チーム単位の最終発表に使える共有メモを自動生成する。
+
+    4人前後のグループで複数のMVを投稿している前提のため、
+    1作品だけの成果報告ではなく、チーム全体の傾向・代表事例・再現できる学びをまとめる。
+    """
     action_part = "、".join(planned_actions) if planned_actions else "未入力"
     next_action_part = "、".join(next_actions) if next_actions else "未入力"
     short_label, _, short_reason = short_rank(short_views)
-    presenter = f"{student_name}さん / チーム" if student_name else "チーム"
+    representative_title = video_title or "未入力"
+    member_text = f"約{team_member_count}人" if team_member_count else "未入力"
 
-    return f"""【最終発表用 共有メモ】
+    return f"""【最終発表用 チーム共有メモ】
 
-1. 作品紹介
-・発表者：{presenter}
-・作品名：{video_title or '未入力'}
-・作品の推しポイント：{presentation_work_intro or '未入力'}
+1. チーム全体の作品紹介・傾向
+・チーム人数の目安：{member_text}
+・チーム全体の作品傾向：{team_work_overview or '未入力'}
+・代表作品 / 入力作品：{representative_title}
 
 2. チャンネル・投稿の工夫
-・投稿時に意識したこと：{presentation_posting_tips or '未入力'}
-・投稿前に立てた施策：{action_part}
+・チーム全体で意識した投稿の工夫：{team_posting_tips or '未入力'}
+・投稿前に立てた施策（この画面の入力内容）：{action_part}
+・チーム全体で試したこと：{team_action_overview or '未入力'}
 
-3. 再生回数を伸ばすために試したこと
-・実際に行った / 次に行う改善アクション：{next_action_part}
-・今回の優先課題：{main_problem}
+3. 代表事例
+・特に共有したい代表事例：{representative_case or '未入力'}
+・代表作品の優先課題：{main_problem}
+・代表作品で実行 / 次に実行する改善アクション：{next_action_part}
 
-4. 数字の結果
-・視聴回数：{act_views:,} 回
-・インプレッション：{act_imp:,} 回
-・インプレッションのクリック率（CTR）：{act_ctr:.1f}%
-・平均再生率：{retention:.1f}%
+4. 数字の結果とチーム全体の傾向
+・代表作品の視聴回数：{act_views:,} 回
+・代表作品のインプレッション：{act_imp:,} 回
+・代表作品のインプレッションのクリック率（CTR）：{act_ctr:.1f}%
+・代表作品の平均再生率：{retention:.1f}%
 ・高評価数：{likes:,} 件 / コメント数：{comments:,} 件 / 登録者増加：{subs:,} 人
 ・ショート最高視聴回数：{short_views:,} 回（{short_label}：{short_reason}）
 ・外部トラフィック比率：{external_ratio:.1f}%
+・チーム全体の数字から見えた傾向：{team_numbers_insight or '未入力'}
 
-5. 数字を見て分かったこと
-・{reflection or '未入力'}
+5. 成功パターンと改善ポイント
+・他の作品にも応用できそうな成功パターン：{team_success_pattern or '未入力'}
+・伸び悩んだ点 / 次に改善したい傾向：{team_challenge_pattern or '未入力'}
 
-6. 成功事例・共有したい工夫
-・うまくいったこと / 他チームにも共有したいこと：{presentation_success or '未入力'}
-
-7. チームで学んだこと
+6. チームで学んだこと
 ・{team_learning or '未入力'}
 
-8. 次に活かすこと
-・今回の結果から、次回は「数字を見る → 原因を考える → 改善を選ぶ → もう一度検証する」の流れをさらに意識する。
+7. 次に活かすこと
+・{next_apply or '今回の結果をもとに、次回は「数字を見る → 原因を考える → 改善を選ぶ → もう一度検証する」の流れをさらに意識する。'}
 """
 
 # =========================
@@ -3110,50 +3130,88 @@ if current_step == NAV_OPTIONS[2]:
     st.markdown(
         """
         <div class="plain-paragraph-block">
-            長期間使う場合は、このセクションだけ見れば発表準備ができるように、
-            <b>発表用メモの入力</b>と<b>発表用まとめの出力</b>をここに集約しています。<br>
-            発表項目は、<b>作品紹介 → 工夫 → 試したこと → 数字 → 分かったこと → 学び</b>の順で整理すると伝わりやすくなります。
+            4人前後のチームで複数作品を投稿している場合は、1作品だけの報告ではなく、
+            <b>チーム全体の傾向</b>と<b>代表事例</b>を中心にまとめると、他チームにも学びが伝わりやすくなります。<br>
+            発表では、<b>作品群の特徴 → 試したこと → 数字の傾向 → 代表事例 → 成功パターン → 次に活かすこと</b>の順で整理するのがおすすめです。
         </div>
         """,
         unsafe_allow_html=True,
     )
-    render_subheading("📝 発表用メモ入力")
-    presentation_work_intro = st.text_area(
-        "作品紹介で伝えたいこと",
-        placeholder="例：明るいシティポップ調のAI楽曲に、放課後の映像を合わせた青春系MVです。",
-        key="presentation_work_intro",
+    render_subheading("発表用メモ入力")
+    col_team_a, col_team_b = st.columns([1, 2])
+    with col_team_a:
+        team_member_count = st.number_input(
+            "チーム人数（目安）",
+            min_value=1,
+            max_value=10,
+            step=1,
+            key="team_member_count",
+        )
+    with col_team_b:
+        team_work_overview = st.text_area(
+            "チーム全体の作品紹介・傾向",
+            placeholder="例：4人それぞれが生成AI音楽を使い、青春系・ダーク系・作業用BGM系など、異なる方向性のMVを投稿した。",
+            key="team_work_overview",
+        )
+
+    team_posting_tips = st.text_area(
+        "チャンネル・投稿の工夫（チーム全体）",
+        placeholder="例：タイトルの冒頭にAI MVを入れる、サムネイルの文字を大きくする、概要欄に歌詞と制作クレジットを書く、などをチームで意識した。",
+        key="team_posting_tips",
     )
-    presentation_posting_tips = st.text_area(
-        "チャンネル・投稿の工夫",
-        placeholder="例：タイトルの冒頭にAI MVと入れ、サムネイルでは曲の世界観が一目で伝わるようにした。",
-        key="presentation_posting_tips",
+    team_action_overview = st.text_area(
+        "再生回数を伸ばすためにチーム全体で試したこと",
+        placeholder="例：ショート動画を投稿する、Xで動画付き告知をする、固定コメントに本編URLを入れる、サムネイルを差し替える、などを試した。",
+        key="team_action_overview",
     )
-    presentation_success = st.text_area(
-        "成功事例・共有したい工夫",
-        placeholder="例：ショートの固定コメントに本編URLを置いたことで、本編への導線を作れた。",
-        key="presentation_success",
+    representative_case = st.text_area(
+        "代表事例として共有したい作品・施策",
+        placeholder="例：AさんのMVはショート動画が伸び、固定コメントから本編への導線を作れた。BさんのMVはCTRが高く、サムネイルの文字の大きさが効果的だった。",
+        key="representative_case",
+    )
+    team_numbers_insight = st.text_area(
+        "数字から見えたチーム全体の傾向",
+        placeholder="例：インプレッションは出ていてもCTRが低い作品が多く、サムネイルとタイトルの入口設計が課題だと分かった。",
+        key="team_numbers_insight",
+    )
+    team_success_pattern = st.text_area(
+        "他の作品にも応用できそうな成功パターン",
+        placeholder="例：サビを切り出したショート、文字が大きいサムネイル、概要欄の歌詞掲載、固定コメントの本編リンクが効果的だった。",
+        key="team_success_pattern",
+    )
+    team_challenge_pattern = st.text_area(
+        "伸び悩んだ点・次に改善したい傾向",
+        placeholder="例：ショートは再生されたが本編への導線が弱かった。タイトルが抽象的で検索されにくかった。",
+        key="team_challenge_pattern",
     )
     team_learning = st.text_area(
         "チームで学んだこと",
-        placeholder="例：再生回数だけでなく、インプレッションやCTRを見ると改善すべき場所が分かると学んだ。",
+        placeholder="例：再生回数だけで判断せず、インプレッション、CTR、平均再生率、ショートの動きを分けて見ると改善点が分かると学んだ。",
         key="team_learning",
+    )
+    next_apply = st.text_area(
+        "次に活かすこと",
+        placeholder="例：次回は投稿前からショート導線まで設計し、サムネイルはスマホサイズで確認してから公開する。",
+        key="next_apply",
     )
 
     try:
         presentation_text = make_presentation_summary(
-            student_name, video_title, presentation_work_intro, presentation_posting_tips,
+            student_name, video_title, team_member_count, team_work_overview,
+            team_posting_tips, team_action_overview, representative_case,
             planned_actions, act_views, act_imp, act_ctr, retention, likes, comments,
             subs, short_views, external_ratio, main_problem, reflection,
-            presentation_success, team_learning, next_actions
+            team_numbers_insight, team_success_pattern, team_challenge_pattern,
+            team_learning, next_actions, next_apply
         )
     except NameError:
         presentation_text = "先に『投稿前 Plan』『投稿後 Check』『改善 Action』の内容を入力してください。"
 
-    render_subheading("📋 発表用まとめ出力")
-    st.text_area("発表スライド作成の下書きに使えます", value=presentation_text, height=520)
+    render_subheading("発表用まとめ出力")
+    st.text_area("チーム発表スライド作成の下書きに使えます", value=presentation_text, height=620)
     st.download_button(
         "📥 最終発表メモをテキストで保存",
         data=presentation_text.encode("utf-8"),
-        file_name="ai_mv_final_presentation_memo.txt",
+        file_name="ai_mv_team_final_presentation_memo.txt",
         mime="text/plain"
     )
