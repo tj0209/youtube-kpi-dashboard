@@ -1885,6 +1885,73 @@ div[data-testid="stImage"] img {
     .slide-hint-grid { grid-template-columns: 1fr; }
 }
 
+
+
+/* V64: 入力支援ヒント（学生の自主性を残しつつ、未入力を減らす） */
+.input-guide-panel {
+    margin: 10px 0 14px 0;
+    padding: 14px 16px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.68), rgba(30, 41, 59, 0.36));
+    border-radius: 5px;
+}
+.input-guide-kicker {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    font-weight: 900;
+    color: rgba(255,255,255,0.58) !important;
+    margin-bottom: 5px;
+}
+.input-guide-title {
+    font-size: 14px;
+    font-weight: 900;
+    color: #F8FAFC !important;
+    margin-bottom: 6px;
+}
+.input-guide-lead {
+    font-size: 13px;
+    line-height: 1.75;
+    color: #CBD5E1 !important;
+    margin-bottom: 8px;
+}
+.input-guide-list {
+    margin: 8px 0 0 0 !important;
+    padding-left: 18px !important;
+}
+.input-guide-list li {
+    color: #E5E7EB !important;
+    font-size: 13px;
+    line-height: 1.75;
+    margin-bottom: 3px;
+}
+.input-guide-examples {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+.input-guide-example {
+    background: rgba(2, 6, 23, 0.42);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 5px;
+    padding: 10px 11px;
+    color: #D1D5DB !important;
+    font-size: 12px;
+    line-height: 1.7;
+}
+.input-guide-example b {
+    color: #FFFFFF !important;
+}
+.input-guide-note {
+    margin-top: 9px;
+    color: #AAB4C2 !important;
+    font-size: 12px;
+    line-height: 1.6;
+}
+@media (max-width: 760px) {
+    .input-guide-examples { grid-template-columns: 1fr; }
+}
+
 </style>
 
 """, unsafe_allow_html=True)
@@ -2706,6 +2773,72 @@ def render_student_decision_panel():
         unsafe_allow_html=True,
     )
 
+
+
+def render_input_guide(kicker, title, lead, tips=None, examples=None, note=None):
+    """改善レポート入力欄の直前に出す、小さなヒントカード。"""
+    safe_kicker = html.escape(str(kicker), quote=True)
+    safe_title = html.escape(str(title), quote=True)
+    safe_lead = html.escape(str(lead), quote=True)
+    parts = [
+        '<div class="input-guide-panel">',
+        f'<div class="input-guide-kicker">{safe_kicker}</div>',
+        f'<div class="input-guide-title">{safe_title}</div>',
+        f'<div class="input-guide-lead">{safe_lead}</div>',
+    ]
+    if tips:
+        parts.append('<ul class="input-guide-list">')
+        for tip in tips:
+            parts.append(f'<li>{html.escape(str(tip), quote=True)}</li>')
+        parts.append('</ul>')
+    if examples:
+        parts.append('<div class="input-guide-examples">')
+        for label, text in examples:
+            parts.append(
+                '<div class="input-guide-example">'
+                f'<b>{html.escape(str(label), quote=True)}</b><br>'
+                f'{html.escape(str(text), quote=True)}'
+                '</div>'
+            )
+        parts.append('</div>')
+    if note:
+        parts.append(f'<div class="input-guide-note">{html.escape(str(note), quote=True)}</div>')
+    parts.append('</div>')
+    st.markdown("\n".join(parts), unsafe_allow_html=True)
+
+
+def build_action_reason_examples(priority):
+    """優先課題に合わせた、理由記入の例を返す。"""
+    priority = str(priority)
+    if "インプレッション不足" in priority:
+        return [
+            ("例：インプレッション不足", "表示される機会が少なかったため、概要欄・タグ・ショート動画・外部SNSで入口を増やす改善を優先する。"),
+            ("例：ショート未活用", "ショート動画の視聴回数が0回だったため、既存MVから見どころを切り出して本編への入口を作る。"),
+        ]
+    if "CTR" in priority or "クリック率" in priority:
+        return [
+            ("例：CTR不足", "インプレッションはあるのにクリック率が低かったため、サムネイルの文字サイズ・主役の大きさ・タイトル冒頭を改善する。"),
+            ("例：比較改善", "他メンバーの高CTRサムネイルと比較し、自分のサムネイルに足りない強調や視認性を確認する。"),
+        ]
+    if "平均再生率" in priority:
+        return [
+            ("例：平均再生率不足", "クリックはされたが途中離脱が多い可能性があるため、固定コメントや概要欄でMVの見どころを先に伝える。"),
+            ("例：期待値調整", "サムネイル・タイトルで伝えた内容とMV本体の印象にズレがないか確認する。"),
+        ]
+    if "ショート" in priority:
+        return [
+            ("例：ショート未活用", "本編MVだけでは見つけてもらいにくいため、ショート動画を入口として追加する。"),
+            ("例：別パターン", "最初のショートが伸びにくかったため、サビ・歌詞・映像の見せ場を変えて別パターンを試す。"),
+        ]
+    if "外部" in priority:
+        return [
+            ("例：外部トラフィック不足", "YouTube内だけに頼らず、X・Instagram・TikTokで動画付き告知を行い、外部からの視聴者を増やす。"),
+            ("例：チーム拡散", "チーム内で引用リポストやコメントを行い、初動の反応を作る。"),
+        ]
+    return [
+        ("例：良い結果の再利用", "大きな弱点が見えなかったため、今回うまくいったサムネイル・タイトル・ショートの要素を次回も再利用する。"),
+        ("例：次の検証", "今回は〇〇が良かったため、次回は□□を変えて同じ傾向が出るか確認する。"),
+    ]
 
 def render_status_panel(rows):
     """総合ステータスの各項目を、状態が一目で分かる色分けKPIカードとして表示する。"""
@@ -3719,13 +3852,37 @@ if current_step == NAV_OPTIONS[2]:
         render_selected_grouped_list("選択中の改善アクション", action_groups, next_actions)
 
         render_subheading("改善アクションを選んだ理由")
+        render_input_guide(
+            "WRITE SUPPORT",
+            "理由は『数字 → 課題 → だからこの対策』の順で書く",
+            "入力例はヒントです。そのままコピーするのではなく、自分のMVの数値・ターゲット・作品内容に合わせて書き換えてください。",
+            tips=[
+                "インプレッション数が少ない時は、まず“見つけてもらう入口”を増やす対策につなげる。",
+                "インプレッションのクリック率（CTR）が低い時は、サムネイル・タイトルの入口設計につなげる。",
+                "平均再生率が低い時は、視聴者の期待値や見どころの伝え方につなげる。",
+            ],
+            examples=build_action_reason_examples(action_recommendation.get("priority", "")),
+            note="『なんとなく選んだ』ではなく、『この数値がこうだったので、この対策を選ぶ』という形を目指しましょう。"
+        )
         action_reason = st.text_area(
             "なぜその改善アクションを選びましたか？",
-            placeholder="例：インプレッションはあるのにCTRが低かったため、まずはサムネイルとタイトルの入口改善を優先する。",
+            placeholder="例：インプレッション数が500回と少なかったため、まずはショート動画と概要欄の改善で見つけてもらう入口を増やす。",
             key="action_reason",
         )
 
         render_subheading("次回検証するKPI")
+        render_input_guide(
+            "KPI SELECT",
+            "改善アクションに対応するKPIを選ぶ",
+            "次回のPDCAでは、選んだ改善アクションがどの数値に影響したかを確認します。",
+            tips=[
+                "サムネイル・タイトルを変える → インプレッションのクリック率（CTR）を見る。",
+                "概要欄・タグ・ショートを追加する → インプレッション数やショート視聴回数を見る。",
+                "SNS告知を強化する → 外部トラフィック比率や視聴回数を見る。",
+                "固定コメント・見どころ説明を入れる → 平均再生率やコメント数を見る。",
+            ],
+            note="1つに絞るのが難しい場合は、今回いちばん改善したい数字を選んでください。"
+        )
         kpi_options = [
             "インプレッションのクリック率（CTR）",
             "インプレッション",
@@ -3742,9 +3899,26 @@ if current_step == NAV_OPTIONS[2]:
             horizontal=False,
             key="next_kpi",
         )
-        next_goal = st.text_input("次回目標", placeholder="例：CTR 4.5% → 6.0%", key="next_goal")
-        reflection = st.text_area("今回わかったこと", placeholder="例：サムネの文字が小さいとスマホで目立たず、CTRが下がるとわかった", key="reflection")
-        next_hypothesis = st.text_area("次回の仮説", placeholder="例：サムネの文字を太くして、タイトル冒頭に『AI MV』を入れればCTRが上がるはず", key="next_hypothesis")
+        next_goal = st.text_input("次回目標", placeholder="例：CTR 4.5% → 6.0% / ショート視聴回数 0回 → 300回", key="next_goal")
+
+        render_subheading("振り返りと次回の仮説")
+        render_input_guide(
+            "REFLECTION SUPPORT",
+            "『今回わかったこと』と『次回の仮説』は採点で特に大事",
+            "ここは感想だけで終わらせず、数字から見えた学びと、次に検証したいことを書きます。",
+            tips=[
+                "今回わかったこと：結果の事実だけでなく、そこから考えた原因や学びを書く。",
+                "次回の仮説：『〇〇をすれば、□□の数値が上がるはず』の形にすると検証しやすい。",
+                "未入力のままだと、PDCAを回したことがレポートから伝わりにくくなります。",
+            ],
+            examples=[
+                ("今回わかったこと", "CTRが低かったため、サムネイルとタイトルが視聴者に十分刺さっていない可能性がある。"),
+                ("次回の仮説", "サムネイルの文字を大きくし、タイトル冒頭に曲の特徴を入れればCTRが上がるはず。"),
+            ],
+            note="正解を書く必要はありません。自分の数字を見て『次に何を確かめたいか』が伝わればOKです。"
+        )
+        reflection = st.text_area("今回わかったこと", placeholder="例：視聴回数は少なかったが、外部トラフィック比率が高く、SNS告知は入口になっていたとわかった。", key="reflection")
+        next_hypothesis = st.text_area("次回の仮説", placeholder="例：ショート動画を2パターン投稿し、固定コメントから本編へ誘導すれば、本編の視聴回数が増えるはず。", key="next_hypothesis")
 
     try:
         if is_data_error:
