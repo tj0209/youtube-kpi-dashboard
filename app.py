@@ -1952,220 +1952,51 @@ div[data-testid="stImage"] img {
     .input-guide-examples { grid-template-columns: 1fr; }
 }
 
+
+/* Copyable report output */
+.copy-report-wrap {
+    margin-top: 12px;
+}
+.copy-report-label {
+    color: #E5E7EB !important;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    margin: 0 0 8px 0;
+}
+.copy-report-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    display: block;
+    background: #F8FAFC !important;
+    color: #0F172A !important;
+    border: 1px solid rgba(148,163,184,0.55) !important;
+    border-radius: 5px !important;
+    padding: 16px 18px !important;
+    font-size: 14px !important;
+    line-height: 1.8 !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    white-space: pre-wrap !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+.copy-report-textarea:focus {
+    outline: none !important;
+    border: 2px solid var(--yt-red, #FF0000) !important;
+    box-shadow: 0 0 0 4px rgba(255,0,0,0.14) !important;
+}
+.copy-report-note {
+    margin-top: 8px;
+    color: #94A3B8 !important;
+    font-size: 12px;
+}
+
 </style>
 
 """, unsafe_allow_html=True)
 
-# =========================
-# 初回表示用：軽量ローディング演出
-# =========================
-# Streamlitは操作のたびに再実行されるため、ローディング演出を毎回出すと
-# 入力作業の邪魔になります。session_stateで「初回だけ」表示します。
-if "_intro_loader_seen" not in st.session_state:
-    st.session_state["_intro_loader_seen"] = True
-    st.markdown("""
-    <style>
-    body::before {
-        content: "AI-MV PDCA Dashboard";
-        position: fixed;
-        inset: 0;
-        z-index: 999999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background:
-            radial-gradient(circle at 35% 35%, rgba(56,189,248,0.18), transparent 28%),
-            radial-gradient(circle at 65% 60%, rgba(255,0,51,0.16), transparent 30%),
-            linear-gradient(135deg, #020617 0%, #0F172A 55%, #111827 100%);
-        color: #F8FAFC;
-        font-size: clamp(22px, 4vw, 42px);
-        font-weight: 900;
-        letter-spacing: -0.04em;
-        pointer-events: none;
-        animation: introLoaderFade 1.05s ease-out forwards;
-    }
-    body::after {
-        content: "";
-        position: fixed;
-        left: 50%;
-        top: calc(50% + 58px);
-        width: 34px;
-        height: 34px;
-        margin-left: -17px;
-        z-index: 1000000;
-        border: 3px solid rgba(248,250,252,0.22);
-        border-top-color: #38BDF8;
-        border-right-color: #FF0033;
-        border-radius: 50%;
-        pointer-events: none;
-        animation:
-            introSpin 0.7s linear infinite,
-            introSpinnerFade 1.05s ease-out forwards;
-    }
-    @keyframes introLoaderFade {
-        0% { opacity: 1; visibility: visible; }
-        58% { opacity: 1; visibility: visible; }
-        100% { opacity: 0; visibility: hidden; }
-    }
-    @keyframes introSpinnerFade {
-        0% { opacity: 1; visibility: visible; }
-        58% { opacity: 1; visibility: visible; }
-        100% { opacity: 0; visibility: hidden; }
-    }
-    @keyframes introSpin {
-        to { transform: rotate(360deg); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        body::before,
-        body::after {
-            animation-duration: 0.25s !important;
-        }
-    }
-    
-/* V57: 総合ステータスを状態別カラーのKPIカード化 */
-.status-panel {
-    gap: 12px !important;
-}
-
-.status-item {
-    border-left: 1px solid rgba(255,255,255,0.11) !important;
-    padding: 16px 96px 15px 15px !important;
-    min-height: 96px !important;
-    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-}
-
-.status-item:hover {
-    transform: translateY(-1px);
-}
-
-.status-item::before {
-    display: none !important;
-}
-
-.status-item::after {
-    opacity: 0.28 !important;
-}
-
-.status-state-pill {
-    position: absolute;
-    top: 11px;
-    right: 12px;
-    z-index: 3;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 48px;
-    padding: 4px 9px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 900;
-    line-height: 1.15;
-    letter-spacing: 0.04em;
-    color: #FFFFFF !important;
-    background: rgba(255,255,255,0.14);
-    border: 1px solid rgba(255,255,255,0.14);
-    box-shadow: none !important;
-}
-
-.status-state-neutral {
-    background:
-        linear-gradient(135deg, rgba(255,255,255,0.066), rgba(255,255,255,0.024)),
-        rgba(18,18,18,0.72) !important;
-    border-color: rgba(255,255,255,0.13) !important;
-}
-
-.status-state-neutral .status-state-pill {
-    color: #D4D4D4 !important;
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(255,255,255,0.13);
-}
-
-.status-state-success {
-    background:
-        linear-gradient(135deg, rgba(34,197,94,0.17), rgba(255,255,255,0.025)),
-        rgba(18,18,18,0.74) !important;
-    border-color: rgba(34,197,94,0.34) !important;
-}
-
-.status-state-success .status-state-pill {
-    color: #DCFCE7 !important;
-    background: rgba(34,197,94,0.25);
-    border-color: rgba(34,197,94,0.40);
-}
-
-.status-state-warning {
-    background:
-        linear-gradient(135deg, rgba(245,158,11,0.17), rgba(255,255,255,0.026)),
-        rgba(18,18,18,0.74) !important;
-    border-color: rgba(245,158,11,0.38) !important;
-}
-
-.status-state-warning .status-state-pill {
-    color: #FEF3C7 !important;
-    background: rgba(245,158,11,0.24);
-    border-color: rgba(245,158,11,0.42);
-}
-
-.status-state-danger {
-    background:
-        linear-gradient(135deg, rgba(255,0,0,0.18), rgba(255,255,255,0.024)),
-        rgba(18,18,18,0.76) !important;
-    border-color: rgba(255,0,0,0.42) !important;
-}
-
-.status-state-danger .status-state-pill {
-    color: #FEE2E2 !important;
-    background: rgba(255,0,0,0.26);
-    border-color: rgba(255,0,0,0.46);
-}
-
-.status-state-legendary {
-    background:
-        radial-gradient(circle at top right, rgba(255,0,0,0.18), transparent 38%),
-        linear-gradient(135deg, rgba(255,0,0,0.22), rgba(245,158,11,0.08)),
-        rgba(18,18,18,0.78) !important;
-    border-color: rgba(255,0,0,0.52) !important;
-}
-
-.status-state-legendary .status-state-pill {
-    color: #FFFFFF !important;
-    background: linear-gradient(135deg, #FF0000, #FF4B4B);
-    border-color: rgba(255,255,255,0.18);
-}
-
-.status-state-success .status-icon {
-    background: rgba(34,197,94,0.16) !important;
-    border-color: rgba(34,197,94,0.28) !important;
-}
-
-.status-state-warning .status-icon {
-    background: rgba(245,158,11,0.16) !important;
-    border-color: rgba(245,158,11,0.30) !important;
-}
-
-.status-state-danger .status-icon,
-.status-state-legendary .status-icon {
-    background: rgba(255,0,0,0.16) !important;
-    border-color: rgba(255,0,0,0.30) !important;
-}
-
-.status-item-problem {
-    grid-column: 1 / -1;
-}
-
-.status-item-problem .status-value {
-    font-size: 16px !important;
-    line-height: 1.72 !important;
-}
-
-@media (max-width: 820px) {
-    .status-item {
-        padding-right: 86px !important;
-    }
-}
-
-</style>
-    """, unsafe_allow_html=True)
+# 初回ローディング演出は、入力作業を妨げる可能性があるため撤去しました。
 
 # =========================
 # V58: 総合ステータスKPIカードのライン除去・バッジ表示の安定化
@@ -2481,6 +2312,104 @@ for _state_key, _default_value in PERSISTENT_DEFAULTS.items():
     if _state_key not in st.session_state:
         st.session_state[_state_key] = _default_value
 
+# =========================
+# Stable widget helpers
+# =========================
+# Streamlitは「現在描画していないウィジェット」の値をクリーンアップすることがあるため、
+# タブ風UIで画面を切り替えると入力値が消える場合があります。
+# そこで、実際のウィジェットキー（_w_...）と、保存用キー（通常の項目名）を分離します。
+# 保存用キーは常にsession_stateに残るため、画面移動や再描画でも入力値が保持されます。
+def _copy_widget_value(widget_key: str, state_key: str):
+    st.session_state[state_key] = st.session_state.get(widget_key, st.session_state.get(state_key))
+
+def _prepare_widget_key(state_key: str):
+    widget_key = f"_w_{state_key}"
+    if widget_key not in st.session_state:
+        st.session_state[widget_key] = st.session_state.get(state_key, PERSISTENT_DEFAULTS.get(state_key, ""))
+    return widget_key
+
+def stable_text_input(label, state_key: str, **kwargs):
+    widget_key = _prepare_widget_key(state_key)
+    value = st.text_input(label, key=widget_key, on_change=_copy_widget_value, args=(widget_key, state_key), **kwargs)
+    st.session_state[state_key] = value
+    return value
+
+def stable_text_area(label, state_key: str, **kwargs):
+    widget_key = _prepare_widget_key(state_key)
+    value = st.text_area(label, key=widget_key, on_change=_copy_widget_value, args=(widget_key, state_key), **kwargs)
+    st.session_state[state_key] = value
+    return value
+
+def stable_number_input(label, state_key: str, **kwargs):
+    widget_key = _prepare_widget_key(state_key)
+    value = st.number_input(label, key=widget_key, on_change=_copy_widget_value, args=(widget_key, state_key), **kwargs)
+    st.session_state[state_key] = value
+    return value
+
+def stable_slider(label, state_key: str, **kwargs):
+    widget_key = _prepare_widget_key(state_key)
+    value = st.slider(label, key=widget_key, on_change=_copy_widget_value, args=(widget_key, state_key), **kwargs)
+    st.session_state[state_key] = value
+    return value
+
+def stable_radio(label, state_key: str, options, **kwargs):
+    widget_key = _prepare_widget_key(state_key)
+    current = st.session_state.get(widget_key, st.session_state.get(state_key, options[0]))
+    if current not in options:
+        st.session_state[widget_key] = options[0]
+        st.session_state[state_key] = options[0]
+    value = st.radio(label, options, key=widget_key, on_change=_copy_widget_value, args=(widget_key, state_key), **kwargs)
+    st.session_state[state_key] = value
+    return value
+
+
+def _reset_editable_report(state_key: str, source_key: str, text: str):
+    """text_area描画前のコールバックで編集欄を最新生成文に戻す。"""
+    st.session_state[state_key] = text
+    st.session_state[source_key] = text
+
+
+def render_editable_report(label: str, text: str, state_key: str, height: int = 420):
+    """自動生成レポートを、学生が自分の言葉で編集してからコピー・保存できる形で表示する。
+
+    Streamlitでは、text_area描画後に同じkeyのsession_stateを書き換えるとエラーになる。
+    そのため、最新内容への反映は text_area より前に配置したボタンの on_click で行う。
+    """
+    source_key = f"{state_key}_source_text"
+
+    # 初回だけ自動生成文を編集欄へ入れる。
+    # 以降は学生が編集した本文を勝手に上書きしない。
+    if state_key not in st.session_state:
+        st.session_state[state_key] = text
+        st.session_state[source_key] = text
+    elif source_key not in st.session_state:
+        st.session_state[source_key] = text
+
+    st.markdown(f'<div class="copy-report-label">{html.escape(label)}</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="copy-report-note">入力内容を変更した後は、必要に応じて下のボタンで最新の自動生成内容を編集欄へ反映してください。編集欄は自分の言葉に直して提出できます。</div>',
+        unsafe_allow_html=True
+    )
+    st.button(
+        "↻ 最新の自動生成内容を編集欄に反映",
+        key=f"{state_key}_reset_button",
+        on_click=_reset_editable_report,
+        args=(state_key, source_key, text),
+    )
+
+    edited_text = st.text_area(
+        "編集可能なレポート本文",
+        key=state_key,
+        height=height,
+        label_visibility="collapsed",
+        help="自動生成された文章をそのまま使うだけでなく、自分の言葉に直して提出できます。Ctrl + A → Ctrl + C でコピーできます。"
+    )
+    st.markdown(
+        '<div class="copy-report-note">Ctrl + A → Ctrl + C で全文コピーできます。編集した内容は、下のダウンロードボタンから保存できます。</div>',
+        unsafe_allow_html=True
+    )
+    return edited_text
+
 # v22: 以前のデモ用デフォルト値（視聴回数300回など）が残っている場合は、
 # 実績未入力として扱えるように0へリセットします。
 # 実際に入力した値まで消さないよう、旧デモ値と完全一致する場合のみ実行します。
@@ -2514,28 +2443,7 @@ if not st.session_state.get("_action_defaults_cleared_v24", False):
 
 
 
-# v28: 条件分岐型の疑似タブでは、非表示になったウィジェットの値が
-# Streamlitのウィジェットクリーンアップで消えることがあります。
-# 下記のフォーム用キーだけを毎回自分自身へ再保存し、タブ移動後も入力値を保持します。
-# button系のキーは対象外にしているため、StreamlitValueAssignmentNotAllowedErrorを避けられます。
-_PERSISTENT_FORM_KEYS = [
-    "student_name", "video_title", "target_audience", "hypothesis",
-    "target_views", "target_ctr", "target_retention", "planned_actions_text",
-    "act_views", "likes", "act_imp", "comments", "act_ctr", "subs",
-    "retention", "short_views", "sns_posts",
-    "next_kpi", "next_goal", "action_reason", "reflection", "next_hypothesis",
-    "team_member_count", "team_work_overview", "team_posting_tips", "team_action_overview",
-    "representative_case", "team_numbers_insight", "team_success_pattern", "team_challenge_pattern",
-    "team_learning", "next_apply",
-]
-for _keep_key in _PERSISTENT_FORM_KEYS:
-    if _keep_key in st.session_state:
-        st.session_state[_keep_key] = st.session_state[_keep_key]
-
-# 注意：st.button など一部ウィジェットのキーは、session_state に値を再代入すると
-# StreamlitValueAssignmentNotAllowedError が発生します。
-# そのため、全キーを一括で再代入する処理は行いません。
-# 入力値の保持は、PERSISTENT_DEFAULTSで定義したキーと各ウィジェットのkeyに任せます。
+# v65: 入力値保持は stable_* widgets で行うため、旧self-assignment方式は撤去しました。
 
 # =========================
 # Helper functions
@@ -3462,16 +3370,16 @@ if current_step == NAV_OPTIONS[0]:
     with col_a:
         with st.container():
             render_subheading("作品情報")
-            student_name = st.text_input("学生名・チーム名（任意）", placeholder="例：NVCチームA", key="student_name")
-            video_title = st.text_input("MVタイトル", placeholder="例：電波の向こうへ", key="video_title")
-            target_audience = st.text_area("狙うターゲット", placeholder="例：ボカロ好き、AI音楽に興味がある高校生、作業用BGMを探している人", key="target_audience")
-            hypothesis = st.text_area("今回の仮説", placeholder="例：サムネを明るくし、タイトルにSunoAIとボカロを入れればCTRが上がるはず", key="hypothesis")
+            student_name = stable_text_input("学生名・チーム名（任意）", placeholder="例：NVCチームA", state_key="student_name")
+            video_title = stable_text_input("MVタイトル", placeholder="例：電波の向こうへ", state_key="video_title")
+            target_audience = stable_text_area("狙うターゲット", placeholder="例：ボカロ好き、AI音楽に興味がある高校生、作業用BGMを探している人", state_key="target_audience")
+            hypothesis = stable_text_area("今回の仮説", placeholder="例：サムネを明るくし、タイトルにSunoAIとボカロを入れればCTRが上がるはず", state_key="hypothesis")
     with col_b:
         with st.container():
             render_subheading("目標KPI")
-            target_views = st.number_input("目標視聴回数（回）", min_value=50, step=50, key="target_views")
-            target_ctr = st.slider("目標インプレッションのクリック率（CTR %）", min_value=1.0, max_value=20.0, step=0.1, key="target_ctr")
-            target_retention = st.slider("目標平均再生率（%）", min_value=5.0, max_value=100.0, step=1.0, key="target_retention")
+            target_views = stable_number_input("目標視聴回数（回）", min_value=50, step=50, state_key="target_views")
+            target_ctr = stable_slider("目標インプレッションのクリック率（CTR %）", min_value=1.0, max_value=20.0, step=0.1, state_key="target_ctr")
+            target_retention = stable_slider("目標平均再生率（%）", min_value=5.0, max_value=100.0, step=1.0, state_key="target_retention")
             required_imp = target_views / (target_ctr / 100)
             st.metric("必要インプレッション数の目安", f"{int(required_imp):,} 回")
 
@@ -3487,7 +3395,7 @@ if current_step == NAV_OPTIONS[0]:
             """,
             unsafe_allow_html=True,
         )
-        planned_actions_text = st.text_area(
+        planned_actions_text = stable_text_area(
             "投稿前に実施する予定の施策",
             placeholder=(
                 "例：サムネイルをスマホで見て、文字が読めるか確認する\n"
@@ -3495,7 +3403,7 @@ if current_step == NAV_OPTIONS[0]:
                 "例：概要欄に歌詞と制作クレジットを書く"
             ),
             height=180,
-            key="planned_actions_text",
+            state_key="planned_actions_text",
         )
         planned_actions = render_free_plan_preview(planned_actions_text)
         st.session_state["_planned_actions_cache"] = planned_actions
@@ -3541,23 +3449,23 @@ if current_step == NAV_OPTIONS[1]:
         render_subheading("MV本体のYouTubeアナリティクス数値")
         c1, c2, c3 = st.columns(3)
         with c1:
-            act_views = st.number_input("視聴回数（回）", min_value=0, step=10, key="act_views")
-            likes = st.number_input("高評価数", min_value=0, step=1, key="likes")
+            act_views = stable_number_input("視聴回数（回）", min_value=0, step=10, state_key="act_views")
+            likes = stable_number_input("高評価数", min_value=0, step=1, state_key="likes")
         with c2:
-            act_imp = st.number_input("インプレッション数（回）", min_value=0, step=100, key="act_imp")
-            comments = st.number_input("コメント数", min_value=0, step=1, key="comments")
+            act_imp = stable_number_input("インプレッション数（回）", min_value=0, step=100, state_key="act_imp")
+            comments = stable_number_input("コメント数", min_value=0, step=1, state_key="comments")
         with c3:
-            act_ctr = st.number_input("インプレッションのクリック率（CTR %）", min_value=0.0, max_value=100.0, step=0.1, key="act_ctr")
-            subs = st.number_input("チャンネル登録者増加数（人）", min_value=0, step=1, key="subs")
-        retention = st.slider("平均再生率（%）", min_value=0.0, max_value=100.0, step=1.0, key="retention")
+            act_ctr = stable_number_input("インプレッションのクリック率（CTR %）", min_value=0.0, max_value=100.0, step=0.1, state_key="act_ctr")
+            subs = stable_number_input("チャンネル登録者増加数（人）", min_value=0, step=1, state_key="subs")
+        retention = stable_slider("平均再生率（%）", min_value=0.0, max_value=100.0, step=1.0, state_key="retention")
 
     with st.container():
         render_subheading("ショート動画・外部トラフィック")
         c4, c5 = st.columns(2)
         with c4:
-            short_views = st.number_input("連動ショート動画の最高視聴回数（回）", min_value=0, step=50, key="short_views")
+            short_views = stable_number_input("連動ショート動画の最高視聴回数（回）", min_value=0, step=50, state_key="short_views")
         with c5:
-            sns_posts = st.number_input("外部SNS告知投稿数（件）", min_value=0, step=1, key="sns_posts")
+            sns_posts = stable_number_input("外部SNS告知投稿数（件）", min_value=0, step=1, state_key="sns_posts")
 
     yt_internal_views = int(act_imp * (act_ctr / 100))
     has_actual_data = any([
@@ -3864,10 +3772,10 @@ if current_step == NAV_OPTIONS[2]:
             examples=build_action_reason_examples(action_recommendation.get("priority", "")),
             note="『なんとなく選んだ』ではなく、『この数値がこうだったので、この対策を選ぶ』という形を目指しましょう。"
         )
-        action_reason = st.text_area(
+        action_reason = stable_text_area(
             "なぜその改善アクションを選びましたか？",
             placeholder="例：インプレッション数が500回と少なかったため、まずはショート動画と概要欄の改善で見つけてもらう入口を増やす。",
-            key="action_reason",
+            state_key="action_reason",
         )
 
         render_subheading("次回検証するKPI")
@@ -3893,13 +3801,13 @@ if current_step == NAV_OPTIONS[2]:
             "外部トラフィック比率",
             "ショート視聴回数",
         ]
-        next_kpi = st.radio(
+        next_kpi = stable_radio(
             "次回のPDCAで重点的に確認するKPIを選んでください",
+            "next_kpi",
             kpi_options,
             horizontal=False,
-            key="next_kpi",
         )
-        next_goal = st.text_input("次回目標", placeholder="例：CTR 4.5% → 6.0% / ショート視聴回数 0回 → 300回", key="next_goal")
+        next_goal = stable_text_input("次回目標", placeholder="例：CTR 4.5% → 6.0% / ショート視聴回数 0回 → 300回", state_key="next_goal")
 
         render_subheading("振り返りと次回の仮説")
         render_input_guide(
@@ -3917,8 +3825,8 @@ if current_step == NAV_OPTIONS[2]:
             ],
             note="正解を書く必要はありません。自分の数字を見て『次に何を確かめたいか』が伝わればOKです。"
         )
-        reflection = st.text_area("今回わかったこと", placeholder="例：視聴回数は少なかったが、外部トラフィック比率が高く、SNS告知は入口になっていたとわかった。", key="reflection")
-        next_hypothesis = st.text_area("次回の仮説", placeholder="例：ショート動画を2パターン投稿し、固定コメントから本編へ誘導すれば、本編の視聴回数が増えるはず。", key="next_hypothesis")
+        reflection = stable_text_area("今回わかったこと", placeholder="例：視聴回数は少なかったが、外部トラフィック比率が高く、SNS告知は入口になっていたとわかった。", state_key="reflection")
+        next_hypothesis = stable_text_area("次回の仮説", placeholder="例：ショート動画を2パターン投稿し、固定コメントから本編へ誘導すれば、本編の視聴回数が増えるはず。", state_key="next_hypothesis")
 
     try:
         if is_data_error:
@@ -3936,10 +3844,10 @@ if current_step == NAV_OPTIONS[2]:
         report_text = "先に［1］PLAN／投稿前と［2］CHECK／投稿後分析の内容を入力してください。"
 
     render_section_heading('REPORT OUTPUT', '自動生成PDCAレポート')
-    st.text_area("コピーして提出用レポートに使えます", value=report_text, height=420)
+    edited_report_text = render_editable_report("コピー・編集して提出用レポートに使えます", report_text, state_key="editable_pdca_report_text", height=520)
     st.download_button(
-        "📥 PDCAレポートをテキストで保存",
-        data=report_text.encode("utf-8"),
+        "📥 編集後のPDCAレポートをテキストで保存",
+        data=edited_report_text.encode("utf-8"),
         file_name="ai_mv_pdca_report.txt",
         mime="text/plain"
     )
@@ -3974,59 +3882,59 @@ if current_step == NAV_OPTIONS[3]:
     render_subheading("共有用メモ入力")
     col_team_a, col_team_b = st.columns([1, 2])
     with col_team_a:
-        team_member_count = st.number_input(
+        team_member_count = stable_number_input(
             "チーム人数（目安）",
             min_value=1,
             max_value=10,
             step=1,
-            key="team_member_count",
+            state_key="team_member_count",
         )
     with col_team_b:
-        team_work_overview = st.text_area(
+        team_work_overview = stable_text_area(
             "チーム全体の作品紹介・傾向",
             placeholder="例：4人それぞれが生成AI音楽を使い、青春系・ダーク系・作業用BGM系など、異なる方向性のMVを投稿した。",
-            key="team_work_overview",
+            state_key="team_work_overview",
         )
 
-    team_posting_tips = st.text_area(
+    team_posting_tips = stable_text_area(
         "チャンネル・投稿の工夫（チーム全体）",
         placeholder="例：タイトルの冒頭にAI MVを入れる、サムネイルの文字を大きくする、概要欄に歌詞と制作クレジットを書く、などをチームで意識した。",
-        key="team_posting_tips",
+        state_key="team_posting_tips",
     )
-    team_action_overview = st.text_area(
+    team_action_overview = stable_text_area(
         "再生回数を伸ばすためにチーム全体で試したこと",
         placeholder="例：ショート動画を投稿する、Xで動画付き告知をする、固定コメントに本編URLを入れる、サムネイルを差し替える、などを試した。",
-        key="team_action_overview",
+        state_key="team_action_overview",
     )
-    representative_case = st.text_area(
+    representative_case = stable_text_area(
         "代表事例として共有したい作品・施策",
         placeholder="例：AさんのMVはショート動画が伸び、固定コメントから本編への導線を作れた。BさんのMVはCTRが高く、サムネイルの文字の大きさが効果的だった。",
-        key="representative_case",
+        state_key="representative_case",
     )
-    team_numbers_insight = st.text_area(
+    team_numbers_insight = stable_text_area(
         "数字から見えたチーム全体の傾向",
         placeholder="例：インプレッションは出ていてもCTRが低い作品が多く、サムネイルとタイトルの入口設計が課題だと分かった。",
-        key="team_numbers_insight",
+        state_key="team_numbers_insight",
     )
-    team_success_pattern = st.text_area(
+    team_success_pattern = stable_text_area(
         "他の作品にも応用できそうな成功パターン",
         placeholder="例：サビを切り出したショート、文字が大きいサムネイル、概要欄の歌詞掲載、固定コメントの本編リンクが効果的だった。",
-        key="team_success_pattern",
+        state_key="team_success_pattern",
     )
-    team_challenge_pattern = st.text_area(
+    team_challenge_pattern = stable_text_area(
         "伸び悩んだ点・次に改善したい傾向",
         placeholder="例：ショートは再生されたが本編への導線が弱かった。タイトルが抽象的で検索されにくかった。",
-        key="team_challenge_pattern",
+        state_key="team_challenge_pattern",
     )
-    team_learning = st.text_area(
+    team_learning = stable_text_area(
         "チームで学んだこと",
         placeholder="例：再生回数だけで判断せず、インプレッション、CTR、平均再生率、ショートの動きを分けて見ると改善点が分かると学んだ。",
-        key="team_learning",
+        state_key="team_learning",
     )
-    next_apply = st.text_area(
+    next_apply = stable_text_area(
         "次に活かすこと",
         placeholder="例：次回は投稿前からショート導線まで設計し、サムネイルはスマホサイズで確認してから公開する。",
-        key="next_apply",
+        state_key="next_apply",
     )
 
     try:
@@ -4042,7 +3950,7 @@ if current_step == NAV_OPTIONS[3]:
         presentation_text = "先に［1］PLAN／投稿前、［2］CHECK／投稿後分析、［3］ACTION／改善レポートの内容を入力してください。"
 
     render_subheading("共有用まとめ出力")
-    st.text_area("チーム共有・発表スライド作成の下書きに使えます", value=presentation_text, height=620)
+    render_copyable_report("チーム共有・発表スライド作成の下書きに使えます", presentation_text, height=620)
     st.download_button(
         "📥 共有メモをテキストで保存",
         data=presentation_text.encode("utf-8"),
