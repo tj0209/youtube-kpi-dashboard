@@ -2267,6 +2267,42 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================
+# V69 final visibility fixes
+# =========================
+st.markdown("""
+<style>
+/* ダウンロードボタンが白飛びしないように、最後に強制上書き */
+div[data-testid="stDownloadButton"] > button,
+.stDownloadButton button {
+    background: linear-gradient(135deg, #FF0033, #B91C1C) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255,255,255,0.22) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 8px 22px rgba(255, 0, 51, 0.22) !important;
+    font-weight: 900 !important;
+}
+div[data-testid="stDownloadButton"] > button *,
+.stDownloadButton button *,
+div[data-testid="stDownloadButton"] > button p,
+.stDownloadButton button p {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+}
+div[data-testid="stDownloadButton"] > button:hover,
+.stDownloadButton button:hover {
+    filter: brightness(1.08) !important;
+    border-color: rgba(255,255,255,0.35) !important;
+}
+/* editable report textarea: always readable */
+textarea[aria-label="編集可能なレポート本文"] {
+    background: #FFFFFF !important;
+    color: #020617 !important;
+    caret-color: #020617 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =========================
 # Persistent state defaults
 # =========================
 # タブ風ナビゲーションでは現在表示中のセクションだけを描画するため、
@@ -3950,10 +3986,15 @@ if current_step == NAV_OPTIONS[3]:
         presentation_text = "先に［1］PLAN／投稿前、［2］CHECK／投稿後分析、［3］ACTION／改善レポートの内容を入力してください。"
 
     render_subheading("共有用まとめ出力")
-    render_copyable_report("チーム共有・発表スライド作成の下書きに使えます", presentation_text, height=620)
+    edited_share_text = render_editable_report(
+        "チーム共有・発表スライド作成の下書きに使えます",
+        presentation_text,
+        state_key="editable_share_report_text",
+        height=620,
+    )
     st.download_button(
-        "📥 共有メモをテキストで保存",
-        data=presentation_text.encode("utf-8"),
+        "📥 編集後の共有メモをテキストで保存",
+        data=edited_share_text.encode("utf-8"),
         file_name="ai_mv_team_final_presentation_memo.txt",
         mime="text/plain"
     )
